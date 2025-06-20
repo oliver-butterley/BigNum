@@ -1,0 +1,10 @@
+name = "BigNum"
+version = "0.1.0"
+defaultTargets = ["bignum"]
+
+[[lean_lib]]
+name = "BigNum"
+
+[[lean_exe]]
+name = "bignum"
+root = "Main"
