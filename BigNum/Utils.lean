@@ -34,6 +34,8 @@ def natToStr (n : Nat) : String := String.mk (natToListChar n).reverse
 #eval natToStr 0
 #eval strToNat <| natToStr 12
 
+/-! ## List Bool -/
+
 /-- Convert `List Bool` to a `Nat`. -/
 def listBoolToNat : List Bool → Nat
   | [] => 0

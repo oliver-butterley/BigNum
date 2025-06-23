@@ -38,7 +38,8 @@ def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
 #eval addBitsWithCarry true false false
 #eval addBitsWithCarry true true false
 #eval addBitsWithCarry true true true
-#eval addBitsWithCarry false true true
+#eval addBitsWithCarry false true false
+#eval addBitsWithCarry false false false
 
 /-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
 def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
