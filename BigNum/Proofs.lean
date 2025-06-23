@@ -46,7 +46,7 @@ lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = 
     · suffices
           (2 * listBoolToNat (natToListBool (n / 2)) + if n % 2 = 1 then 1 else 0) = n by
         unfold natToListBool
-        simp [h, listBoolToNat]
+        simpa [h, listBoolToNat_cons]
       have div_lt : n / 2 < n := Nat.div_lt_self (Nat.pos_of_ne_zero h) (by norm_num)
       rw [ih (n / 2) div_lt]
       by_cases hc : n % 2 = 1
@@ -61,7 +61,8 @@ lemma strToNat_natToStr_id n : strToNat (natToStr n) = n := by
   simp [strToNat, natToStr, natToStr_listCharToNat]
 
 /-- BigNum addition agress with `Nat` addition. -/
-theorem addBoolList_correct (a b : List Bool) : strToNat (addBoolList a b) = strToNat a + strToNat b := by
+theorem addBoolList_correct (a b : List Bool) :
+    listBoolToNat (addBoolList a b) = listBoolToNat a + listBoolToNat b := by
 
   sorry
 
