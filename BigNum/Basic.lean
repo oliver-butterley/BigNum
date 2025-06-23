@@ -47,14 +47,14 @@ def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
   match a, b with
   | [], [] => if carry then [true] else []
   | [], b::bs =>
-      let (sum, newCarry) := addBitsWithCarry false b carry
-      sum :: addBoolList [] bs newCarry
+    let (sum, newCarry) := addBitsWithCarry false b carry
+    sum :: addBoolList [] bs newCarry
   | a::as, [] =>
-      let (sum, newCarry) := addBitsWithCarry a false carry
-      sum :: addBoolList as [] newCarry
+    let (sum, newCarry) := addBitsWithCarry a false carry
+    sum :: addBoolList as [] newCarry
   | a::as, b::bs =>
-      let (sum, newCarry) := addBitsWithCarry a b carry
-      sum :: addBoolList as bs newCarry
+    let (sum, newCarry) := addBitsWithCarry a b carry
+    sum :: addBoolList as bs newCarry
 
 /-! ## Define addition for binary numbers written as strings. -/
 
@@ -109,23 +109,12 @@ def add (a b : String) : String :=
 
 #eval add "1001" "11"
 
--- Subtraction and multiplication
-
 -- def sub (a b : String) : Option String :=
---   let x := str2int a
---   let y := str2int b
---   if x ≥ y then some (int2str (x - y)) else none
 
 -- def mul (a b : String) : String :=
---   int2str (str2int a * str2int b)
-
--- Modular operations
 
 -- def modadd (a b m : String) : String :=
---   int2str ((str2int a + str2int b) % str2int m)
 
 -- def modmul (a b m : String) : String :=
---   int2str ((str2int a * str2int b) % str2int m)
 
 -- def modpow (a e m : String) : String :=
---   int2str (Nat.powMod (str2int a) (str2int e) (str2int m))

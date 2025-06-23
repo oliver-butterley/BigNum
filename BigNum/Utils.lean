@@ -30,11 +30,6 @@ def strToNat (s : String) : Nat := strToNat_aux s.toList.reverse
 
 def natToStr (n : Nat) : String := String.mk (natToStr_aux n).reverse
 
--- /-- Convert `Nat` to binary string. Direct version. -/
--- def natToStr (n : Nat) : String :=
---   if n = 0 then ""
---   else natToStr (n / 2) ++ (if n % 2 = 1 then "1" else "0")
-
 #eval natToStr 5
 #eval natToStr 0
 #eval strToNat <| natToStr 12

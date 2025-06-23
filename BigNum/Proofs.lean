@@ -2,16 +2,17 @@ import Mathlib
 import BigNum.Basic
 import BigNum.Utils
 
+/-- Convenient lemma for the term used in the definition of `natToStr_aux`. -/
 lemma bitVal_of_mod_two (n : Nat) :
   bitVal (if n % 2 = 1 then '1' else '0') = n % 2 := by
   by_cases h : n % 2 = 1
   · simp [h, bitVal]
-  · have : n % 2 = 0 := Nat.mod_two_eq_zero_or_one n |>.resolve_right h
+  · have : n % 2 = 0 := (Nat.mod_two_eq_zero_or_one n).resolve_right h
     simp [this, bitVal]
 
-lemma strToNat_aux_cons (c : Char) (l : List Char) :
-  strToNat_aux (c :: l) = 2 * strToNat_aux l + bitVal c := by
-  rfl
+/-- Convenient lemma for the term used in the definition of `strToNat_aux`. -/
+lemma strToNat_aux_cons (h : Char) (t : List Char) :
+  strToNat_aux (h :: t) = 2 * strToNat_aux t + bitVal h := rfl
 
 /-- Converting a `Nat` to a `List Char` and then back is the identity. -/
 lemma strToNat_natToStr_aux (n : Nat) : strToNat_aux (natToStr_aux n) = n := by
@@ -19,12 +20,11 @@ lemma strToNat_natToStr_aux (n : Nat) : strToNat_aux (natToStr_aux n) = n := by
   | h n ih =>
     by_cases h : n = 0
     · simp [h, natToStr_aux, strToNat_aux]
-    · have n_pos : 0 < n := Nat.pos_of_ne_zero h
-      unfold natToStr_aux
-      simp only [h, reduceIte, Char.isValue, strToNat_aux_cons]
-      have div_lt : n / 2 < n := Nat.div_lt_self n_pos (by norm_num)
-      rw [ih (n / 2) div_lt]
-      rw [bitVal_of_mod_two]
+    · suffices
+          2 * strToNat_aux (natToStr_aux (n / 2)) + bitVal (if n % 2 = 1 then '1' else '0') = n by
+        unfold natToStr_aux; simpa [h, strToNat_aux_cons]
+      have div_lt : n / 2 < n := Nat.div_lt_self (Nat.pos_of_ne_zero h) (by norm_num)
+      rw [ih (n / 2) div_lt, bitVal_of_mod_two]
       omega
 
 /-- Converting a `Nat` to a string and then back is the identity. -/
@@ -37,5 +37,4 @@ theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat 
   sorry
 
 -- theorem add_correct m n : strToNat (add (natToStr n) (natToStr m)) = n + m := by
-
 --   sorry
