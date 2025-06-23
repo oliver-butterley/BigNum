@@ -2,20 +2,20 @@
 
 /-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
 else is interpreted as `1`. -/
-def bitVal : Char → Nat
+def bitVal' : Char → Nat
   | '0' => 0
   | ' ' => 0
   | _   => 1
 
-#eval bitVal '0'
-#eval bitVal ' '
-#eval bitVal '1'
-#eval bitVal 'x'
+#eval bitVal' '0'
+#eval bitVal' ' '
+#eval bitVal' '1'
+#eval bitVal' 'x'
 
 /-- Evaluate reversed bitstring to `Nat`. -/
 def str2int_aux : List Char → Nat
   | [] => 0
-  | h::t => 2 * str2int_aux t + bitVal h
+  | h::t => 2 * str2int_aux t + bitVal' h
 
 #eval str2int_aux "01".toList
 

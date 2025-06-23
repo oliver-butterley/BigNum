@@ -27,41 +27,76 @@ containing only characters "0" and "1".
   - Only the characters `1` or `0`
 -/
 
+/-! ## Define binary addition for list of booleans. -/
 
--- -- Normalize (remove leading zeros)
--- def normalize (s : String) : String :=
---   let trimmed := s.dropWhile (· = '0')
---   if trimmed.isEmpty then "0" else trimmed
+/-- Add two bits with carry. -/
+def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
+  let resultBit := (a != b) != carry
+  let carryOut := (a && b) || (carry && (a != b))
+  (resultBit, carryOut)
 
--- Pad with zeros to equal length
+#eval addBitsWithCarry true false false
+#eval addBitsWithCarry true true false
+#eval addBitsWithCarry true true true
+#eval addBitsWithCarry false true true
 
--- def pad (a b : String) : (String × String) :=
---   let len := max a.length b.length
---   ("0".repeat (len - a.length) ++ a, "0".repeat (len - b.length) ++ b)
+-- Possible alternative: normalize and pad both strings and so avoid the matching in the following.
 
--- Full adder
--- def fullAdder (a b c : Char) : Char × Char :=
---   match (bitVal a + bitVal b + bitVal c) with
---   | 0 => ('0', '0')
---   | 1 => ('1', '0')
---   | 2 => ('0', '1')
---   | 3 => ('1', '1')
---   | _ => ('0', '0')
+/-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
+def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
+  match a, b with
+  | [], [] => if carry then [true] else []
+  | [], b::bs =>
+      let (sum, newCarry) := addBitsWithCarry false b carry
+      sum :: addBoolList [] bs newCarry
+  | a::as, [] =>
+      let (sum, newCarry) := addBitsWithCarry a false carry
+      sum :: addBoolList as [] newCarry
+  | a::as, b::bs =>
+      let (sum, newCarry) := addBitsWithCarry a b carry
+      sum :: addBoolList as bs newCarry
 
--- Bitwise addition
+/-! ## Define addition for binary numbers written as strings. -/
 
--- def addBitsRev : List Char → List Char → Char → List Char
---   | [], [], '0' => []
---   | [], [], c   => [c]
---   | ah::at, bh::bt, carry =>
---     let (sum, newCarry) := fullAdder ah bh carry
---     sum :: addBitsRev at bt newCarry
---   | [], bh::bt, c => addBitsRev ['0'] (bh::bt) c
---   | ah::at, [], c => addBitsRev (ah::at) ['0'] c
+/-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
+else is interpreted as `1`. -/
+def charToBool : Char → Bool
+  | '0' => false
+  | ' ' => false
+  | _   => true
 
--- def add (a b : String) : String :=
---   let (a', b') := pad a b
---   String.mk (addBitsRev a'.reverse.toList b'.reverse.toList '0').reverse |> normalize
+#eval charToBool '0'
+#eval charToBool ' '
+#eval charToBool '1'
+#eval charToBool 'x'
+
+/-- Convert from `Bool` to `Char`. -/
+def boolToChar (b : Bool) : Char :=
+  if b then '1' else '0'
+
+/-- Convert list of chars to list of bools. -/
+def toBoolList (chars : List Char) : List Bool :=
+  (chars.reverse.map charToBool)
+
+/-- Convert list of bools back to chars. -/
+def toCharList (bools : List Bool) : List Char :=
+  (bools.reverse.map boolToChar)
+
+-- Main addition function for binary numbers as character lists
+def addBinary (a b : List Char) : List Char :=
+  let aBools := toBoolList a
+  let bBools := toBoolList b
+  let resultBools := addBoolList aBools bBools
+  toCharList resultBools
+
+#eval addBinary ['1', '0', '1'] ['1', '0']
+#eval String.mk <| addBinary "1001".toList "1".toList
+
+/-- Addition of two binary numbers represented as strings. -/
+def add (a b : String) : String :=
+  String.mk <| addBinary a.toList b.toList
+
+#eval add "1001" "11"
 
 -- Subtraction and multiplication
 
