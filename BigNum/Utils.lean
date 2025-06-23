@@ -13,23 +13,33 @@ def bitVal : Char → Nat
 #eval bitVal 'x'
 
 /-- Evaluate reversed bitstring to `Nat`. -/
-def strToNat_aux : List Char → Nat
+def listCharToNat : List Char → Nat
   | [] => 0
-  | h::t => 2 * strToNat_aux t + bitVal h
+  | h::t => 2 * listCharToNat t + bitVal h
 
 /-- Convert `Nat` to binary string - reversed. -/
-def natToStr_aux (n : Nat) : List Char :=
+def natToListChar (n : Nat) : List Char :=
   if n = 0 then []
-  else (if n % 2 = 1 then '1' else '0') :: natToStr_aux (n / 2)
+  else (if n % 2 = 1 then '1' else '0') :: natToListChar (n / 2)
 
 /-- Convert any string to a `Nat` by interpreting the characters as bit values.
 - Zerosy values are `0` or ` `;
 - Onesy values are `1` and any other character.
 Most significant digit first as with standard written binary. -/
-def strToNat (s : String) : Nat := strToNat_aux s.toList.reverse
+def strToNat (s : String) : Nat := listCharToNat s.toList.reverse
 
-def natToStr (n : Nat) : String := String.mk (natToStr_aux n).reverse
+def natToStr (n : Nat) : String := String.mk (natToListChar n).reverse
 
 #eval natToStr 5
 #eval natToStr 0
 #eval strToNat <| natToStr 12
+
+/-- Convert `List Bool` to a `Nat`. -/
+def listBoolToNat : List Bool → Nat
+  | [] => 0
+  | h::t => 2 * listBoolToNat t + (if h then 1 else 0)
+
+/-- Convert a `Nat` to a `List Bool`. -/
+def natToListBool (n : Nat) : List Bool :=
+  if n = 0 then []
+  else (if n % 2 = 1 then true else false) :: natToListBool (n / 2)

@@ -40,8 +40,6 @@ def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
 #eval addBitsWithCarry true true true
 #eval addBitsWithCarry false true true
 
--- Possible alternative: normalize and pad both strings and so avoid the matching in the following.
-
 /-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
 def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
   match a, b with
@@ -82,6 +80,7 @@ def charToBoolList (chars : List Char) : List Bool :=
 def boolToCharList (bools : List Bool) : List Char :=
   (bools.reverse).map boolToChar
 
+/-- Converting from `List Bool` to `list Char` and back again is the identity. -/
 theorem boolToCharList_charToBoolList_id (bools : List Bool) :
     charToBoolList (boolToCharList bools) = bools := by
   induction bools with
@@ -95,10 +94,7 @@ theorem boolToCharList_charToBoolList_id (bools : List Bool) :
 
 -- Main addition function for binary numbers as character lists
 def addBinary (a b : List Char) : List Char :=
-  let aBools := charToBoolList a
-  let bBools := charToBoolList b
-  let resultBools := addBoolList aBools bBools
-  boolToCharList resultBools
+  boolToCharList <| addBoolList (charToBoolList a) (charToBoolList b)
 
 #eval addBinary ['1', '0', '1'] ['1', '0']
 #eval String.mk <| addBinary "1001".toList "1".toList
