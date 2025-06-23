@@ -6,7 +6,7 @@ containing only characters "0" and "1".
 
 - We define natural numbers represented as bitstrings (e.g., "1011").
 - All operations are purely structural (not using built-in `+`, `-`, `*` in core logic).
-- Operations:
+- Operations (`BigNum/Basic.lean`):
   - `add`: adds two bignat strings,
   - `sub`: computes the difference between two bignat strings
   - `mul`: computes the product of two bignat strings
