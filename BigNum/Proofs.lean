@@ -53,12 +53,61 @@ lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = 
       all_goals
       · simp only [hc, reduceIte]; omega
 
-lemma addBitsWithCarry_correct (a b carry : Bool) :
-  let (sum, carryOut) := addBitsWithCarry a b carry
-  (if sum then 1 else 0) + 2 * (if carryOut then 1 else 0) =
-  (if a then 1 else 0) + (if b then 1 else 0) + (if carry then 1 else 0) := by
-  by_cases ha : a <;> by_cases hb : b <;> by_cases hc : carry <;>
-    simp [ha, hb, hc, addBitsWithCarry]
+@[simp]
+lemma addBitsWithCarry_of_FXF (b : Bool) : addBitsWithCarry false b false = (b, false) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_XFF (b : Bool) : addBitsWithCarry  b false false = (b, false) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_FFT : addBitsWithCarry false false true = (true, false) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_TFT : addBitsWithCarry true false true = (false, true) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_FTT : addBitsWithCarry false true true = (false, true) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBoolList_of_empty (bs : List Bool) : addBoolList [] bs = bs := by
+  induction bs with
+  | nil => simp [addBoolList]
+  | cons h t ih => simpa [addBoolList, addBitsWithCarry_of_FXF]
+
+@[simp]
+lemma addBoolList_of_empty' (bs : List Bool) : addBoolList bs [] = bs := by
+  induction bs with
+  | nil => simp [addBoolList]
+  | cons h t ih =>
+    simpa [addBoolList]
+
+@[simp]
+lemma addBoolList_of_carry (bs : List Bool) :
+    listBoolToNat (addBoolList [] bs true) = listBoolToNat bs + 1 := by
+  induction bs with
+  | nil => simp [listBoolToNat, addBoolList]
+  | cons h t ih =>
+    by_cases hh : h
+    · have : 2 * (listBoolToNat t + 1) = 2 * listBoolToNat t + 1 + 1 := by ring
+      simpa [hh, addBoolList, listBoolToNat, ih]
+    · simp [hh, addBoolList, listBoolToNat, ih]
+
+-- To do: could be better to first prove that addBoolList is commutative
+@[simp]
+lemma addBoolList_of_carry' (bs : List Bool) :
+    listBoolToNat (addBoolList  bs [] true) = listBoolToNat bs + 1 := by
+  induction bs with
+  | nil => simp [listBoolToNat, addBoolList]
+  | cons h t ih =>
+    by_cases hh : h
+    · have : 2 * (listBoolToNat t + 1) = 2 * listBoolToNat t + 1 + 1 := by ring
+      simpa [hh, addBoolList, listBoolToNat, ih]
+    · simp [hh, addBoolList, listBoolToNat, ih]
 
 /-- BigNum addition on `List Bool` agress with `Nat` addition. -/
 theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
@@ -70,35 +119,42 @@ theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
   | case2 carry h =>
     simp [listBoolToNat, addBoolList, h]
   | case3 carry b bs sum newCarry h ih =>
-    -- proof for `[], b::bs`
+    -- Case: `[], b::bs`
     rw [show listBoolToNat [] = 0 by rfl, zero_add] at ⊢ ih
-    -- unfold listBoolToNat at ⊢ ih
-    have : addBoolList [] (b::bs) carry = sum :: addBoolList [] bs newCarry := by
-      sorry
-    rw [this]
-    have h' := addBitsWithCarry_correct false b carry
-    simp at h'
-    by_cases hcarry : carry
-    · simp_all [hcarry]
-
-      sorry
-    · simp_all [hcarry]
-
-      sorry
-
+    by_cases hc : carry
+    · by_cases hb : b <;> simp_all [hc]
+    · simp_all [hc]
   | case4 carry a as sum newCarry h ih =>
-    -- proof for `a::as, []`
-    sorry
+    -- Case: `a::as, []`
+    rw [show listBoolToNat [] = 0 by rfl, add_zero] at ⊢ ih
+    by_cases hc : carry
+    · by_cases hb : a
+      · simp_all [hc]
+      · simp_all [hc]
+    · simp_all [hc]
   | case5 carry a as b bs sum newCarry h ih =>
-    -- proof for `a::as, b::bs`, with induction hypothesis `ih`
-    sorry
+    -- Case: `a::as, b::bs`
+    by_cases hc : carry
+    · simp_all [hc]
+
+      sorry
+    · simp_all [hc]
+      by_cases ha : a
+      · by_cases hb : b
+        · simp [ha, hb]
+
+          sorry
+        ·
+          sorry
+      ·
+        sorry
 
 /-! ## String -/
 
 /-- Converting a `Nat` to a string and then back is the identity. -/
+@[simp]
 lemma strToNat_natToStr_id n : strToNat (natToStr n) = n := by
   simp [strToNat, natToStr, natToStr_listCharToNat]
-
 
 /-- BigNum addition agress with `Nat` addition. -/
 theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat b := by
