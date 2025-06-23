@@ -1,78 +1,41 @@
 import Mathlib
--- import BigNum.Basic
+import BigNum.Basic
 import BigNum.Utils
 
-/-! Proofs of the correctness of the definitions. -/
+lemma bitVal_of_mod_two (n : Nat) :
+  bitVal (if n % 2 = 1 then '1' else '0') = n % 2 := by
+  by_cases h : n % 2 = 1
+  · simp [h, bitVal]
+  · have : n % 2 = 0 := Nat.mod_two_eq_zero_or_one n |>.resolve_right h
+    simp [this, bitVal]
 
-/-
-theorem str2int_int2str_id : ∀ n : Nat, str2int (int2str n) = n := by
-  intro n
-  unfold int2str
-  unfold str2int
+lemma strToNat_aux_cons (c : Char) (l : List Char) :
+  strToNat_aux (c :: l) = 2 * strToNat_aux l + bitVal c := by
+  rfl
+
+/-- Converting a `Nat` to a `List Char` and then back is the identity. -/
+lemma strToNat_natToStr_aux (n : Nat) : strToNat_aux (natToStr_aux n) = n := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
-    cases n with
-    | zero => simp [int2strAux, str2intAux]
-    | succ n' =>
-      let rec go : Nat → List Char
-        | 0 => []
-        | k => (if k % 2 = 0 then '0' else '1') :: go (k / 2)
-      have : str2intAux (List.reverse (go n)) = n := by
-        induction n using Nat.strong_induction_on with
-        | h n ih =>
-          cases n with
-          | zero => simp [go, str2intAux]
-          | succ n' =>
-            have q := n / 2
-            have r := n % 2
-            have E : n = 2 * q + r := Nat.div_add_mod n 2
-            simp [go, str2intAux, List.reverse, List.foldr]
-            rw [Nat.mod_two_eq_zero_or_one] at r
-            cases r
-            case zero =>
-              simp [bitVal, E]; rw [ih q (Nat.div_lt_self (Nat.zero_lt_succ _) (by decide))]
-            case succ r' =>
-              have : r' = 0 := by decide
-              simp [bitVal, E, this]; rw [ih q (Nat.div_lt_self (Nat.zero_lt_succ _) (by decide))]
-      exact this
+    by_cases h : n = 0
+    · simp [h, natToStr_aux, strToNat_aux]
+    · have n_pos : 0 < n := Nat.pos_of_ne_zero h
+      unfold natToStr_aux
+      simp only [h, reduceIte, Char.isValue, strToNat_aux_cons]
+      have div_lt : n / 2 < n := Nat.div_lt_self n_pos (by norm_num)
+      rw [ih (n / 2) div_lt]
+      rw [bitVal_of_mod_two]
+      omega
 
-theorem addBitsRev_correct :
-  ∀ (l1 l2 : List Char) (c : Char),
-    str2intAux (addBitsRev l1 l2 c) =
-      str2intAux l1 + str2intAux l2 + (if c = '1' then 1 else 0)
-  := by
-  intro l1
-  induction l1 with
-  | nil =>
-    intro l2 c
-    cases l2 with
-    | nil =>
-      simp [addBitsRev, str2intAux]
-      split <;> simp [str2intAux, bitVal]
-    | cons b bs =>
-      simp [addBitsRev]
-      exact addBitsRev_correct [] bs c
-  | cons a as ih =>
-    intro l2 c
-    cases l2 with
-    | nil =>
-      simp [addBitsRev]
-      exact ih ['0'] c
-    | cons b bs =>
-      simp [addBitsRev]
-      let (sbit, newCarry) := fullAdder a b c
-      let sval := bitVal sbit
-      have : str2intAux (sbit :: addBitsRev as bs newCarry) =
-                sval + 2 * (str2intAux as + str2intAux bs + (if newCarry = '1' then 1 else 0)) := by
-        simp [str2intAux, bitVal]
-        rw [ih bs newCarry]; ring
-      cases a <;> cases b <;> cases c <;> simp [fullAdder, bitVal] at * <;> assumption
+/-- Converting a `Nat` to a string and then back is the identity. -/
+lemma strToNat_natToStr_id n : strToNat (natToStr n) = n := by
+  simp [strToNat, natToStr, strToNat_natToStr_aux]
 
-theorem add_correct (a b : String) :
-  str2int (add a b) = str2int a + str2int b := by
-  let (a', b') := pad a b
-  have : str2intAux (addBitsRev a'.reverse.toList b'.reverse.toList '0') =
-           str2intAux (a'.reverse.toList) + str2intAux (b'.reverse.toList) :=
-    by rw [addBitsRev_correct]; simp
-  simp [add, str2int, this]
--/
+/-- BigNum addition agress with `Nat` addition. -/
+theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat b := by
+
+  sorry
+
+-- theorem add_correct m n : strToNat (add (natToStr n) (natToStr m)) = n + m := by
+
+--   sorry

@@ -65,29 +65,40 @@ def charToBool : Char → Bool
   | ' ' => false
   | _   => true
 
-#eval charToBool '0'
-#eval charToBool ' '
-#eval charToBool '1'
-#eval charToBool 'x'
-
 /-- Convert from `Bool` to `Char`. -/
 def boolToChar (b : Bool) : Char :=
   if b then '1' else '0'
 
+theorem boolToChar_charToBool_id (b : Bool) : charToBool (boolToChar b) = b := by
+  by_cases hb : b
+  all_goals
+  · simp [hb, charToBool, boolToChar]
+
 /-- Convert list of chars to list of bools. -/
-def toBoolList (chars : List Char) : List Bool :=
+def charToBoolList (chars : List Char) : List Bool :=
   (chars.reverse.map charToBool)
 
 /-- Convert list of bools back to chars. -/
-def toCharList (bools : List Bool) : List Char :=
-  (bools.reverse.map boolToChar)
+def boolToCharList (bools : List Bool) : List Char :=
+  (bools.reverse).map boolToChar
+
+theorem boolToCharList_charToBoolList_id (bools : List Bool) :
+    charToBoolList (boolToCharList bools) = bools := by
+  induction bools with
+  | nil =>
+    simp [charToBoolList, boolToCharList]
+  | cons bh bt ih =>
+    suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
+      simpa [charToBoolList, boolToCharList, ih, boolToChar_charToBool_id]
+    refine List.map_id'' (fun a ↦ ?_) bt
+    exact boolToChar_charToBool_id a
 
 -- Main addition function for binary numbers as character lists
 def addBinary (a b : List Char) : List Char :=
-  let aBools := toBoolList a
-  let bBools := toBoolList b
+  let aBools := charToBoolList a
+  let bBools := charToBoolList b
   let resultBools := addBoolList aBools bBools
-  toCharList resultBools
+  boolToCharList resultBools
 
 #eval addBinary ['1', '0', '1'] ['1', '0']
 #eval String.mk <| addBinary "1001".toList "1".toList
