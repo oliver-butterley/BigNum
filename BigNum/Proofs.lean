@@ -109,6 +109,10 @@ lemma addBoolList_of_carry' (bs : List Bool) :
       simpa [hh, addBoolList, listBoolToNat, ih]
     · simp [hh, addBoolList, listBoolToNat, ih]
 
+@[simp]
+lemma listBoolToNat_of_empty : listBoolToNat [] = 0 := by rfl
+
+
 /-- BigNum addition on `List Bool` agress with `Nat` addition. -/
 theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
     listBoolToNat (addBoolList a b carry) = listBoolToNat a + listBoolToNat b +
@@ -120,13 +124,11 @@ theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
     simp [listBoolToNat, addBoolList, h]
   | case3 carry b bs sum newCarry h ih =>
     -- Case: `[], b::bs`
-    rw [show listBoolToNat [] = 0 by rfl, zero_add] at ⊢ ih
     by_cases hc : carry
     · by_cases hb : b <;> simp_all [hc]
     · simp_all [hc]
   | case4 carry a as sum newCarry h ih =>
     -- Case: `a::as, []`
-    rw [show listBoolToNat [] = 0 by rfl, add_zero] at ⊢ ih
     by_cases hc : carry
     · by_cases hb : a
       · simp_all [hc]
@@ -142,6 +144,7 @@ theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
       by_cases ha : a
       · by_cases hb : b
         · simp [ha, hb]
+          unfold addBoolList
 
           sorry
         ·
