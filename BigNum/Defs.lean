@@ -105,6 +105,60 @@ def add (a b : String) : String :=
 -- Example
 #eval add "1001" "11"
 
+/-! ## Define binary subtraction for list of booleans. -/
+
+/-- Subtract two bits with borrow. -/
+def subBitsWithBorrow (a b borrow : Bool) : Bool × Bool :=
+  let resultBit := (a != b) != borrow
+  let borrowOut := (!a && (b || borrow)) || (b && borrow)
+  (resultBit, borrowOut)
+
+/-- Subtract two binary numbers represented as lists of booleans (least significant bit first).
+Computes a - b. Returns the result and whether there was an underflow. -/
+def subListBool' (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
+  match a, b with
+  | [], [] => ([], borrow)
+  | [], b::bs =>
+    let (diff, newBorrow) := subBitsWithBorrow false b borrow
+    let (rest, finalBorrow) := subListBool' [] bs newBorrow
+    (diff :: rest, finalBorrow)
+  | a::as, [] =>
+    let (diff, newBorrow) := subBitsWithBorrow a false borrow
+    let (rest, finalBorrow) := subListBool' as [] newBorrow
+    (diff :: rest, finalBorrow)
+  | a::as, b::bs =>
+    let (diff, newBorrow) := subBitsWithBorrow a b borrow
+    let (rest, finalBorrow) := subListBool' as bs newBorrow
+    (diff :: rest, finalBorrow)
+
+/-- Subtract two binary numbers, returning just the result or zero if negative. -/
+def subListBool (a b : List Bool) : List Bool :=
+  if (subListBool' a b).2 then [] else (subListBool' a b).1
+
+-- /-- Helper function to remove leading zeros from a binary number. -/
+-- def removeLeadingZeros (bits : List Bool) : List Bool :=
+--   match bits.reverse with
+--   | [] => []
+--   | true :: rest => (true :: rest).reverse
+--   | false :: rest => removeLeadingZeros rest.reverse
+
+-- /-- Subtract two binary numbers and remove leading zeros. -/
+-- def subListBoolClean (a b : List Bool) : List Bool :=
+--   removeLeadingZeros (subListBoolSimple a b)
+
+/-! ## Define addition for binary numbers written as strings. -/
+
+/-- Addition of two binary numbers represented as strings. -/
+def sub (a b : String) : String :=
+  listBoolToStr <| subListBool (strToListBool a) (strToListBool b)
+
+-- Example
+#eval sub "1001" "11"
+#eval sub "1001" "001"
+#eval sub "10" "11"
+
+
+
 -- def sub (a b : String) : Option String :=
 
 -- def mul (a b : String) : String :=
@@ -114,3 +168,39 @@ def add (a b : String) : String :=
 -- def modmul (a b m : String) : String :=
 
 -- def modpow (a e m : String) : String :=
+
+-- DEPRECATED
+
+-- /-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
+-- else is interpreted as `1`. -/
+-- def bitVal : Char → Nat
+--   | '0' => 0
+--   | ' ' => 0
+--   | _   => 1
+
+-- #eval bitVal '0'
+-- #eval bitVal ' '
+-- #eval bitVal '1'
+-- #eval bitVal 'x'
+
+-- /-- Evaluate reversed bitstring to `Nat`. -/
+-- def listCharToNat : List Char → Nat
+--   | [] => 0
+--   | h::t => 2 * listCharToNat t + bitVal h
+
+-- /-- Convert `Nat` to binary string - reversed. -/
+-- def natToListChar (n : Nat) : List Char :=
+--   if n = 0 then []
+--   else (if n % 2 = 1 then '1' else '0') :: natToListChar (n / 2)
+
+-- /-- Convert any string to a `Nat` by interpreting the characters as bit values.
+-- - Zerosy values are `0` or ` `;
+-- - Onesy values are `1` and any other character.
+-- Most significant digit first as with standard written binary. -/
+-- def strToNat' (s : String) : Nat := listCharToNat s.toList.reverse
+
+-- def natToStr' (n : Nat) : String := String.mk (natToListChar n).reverse
+
+-- #eval natToStr' 5
+-- #eval natToStr' 0
+-- #eval strToNat' <| natToStr' 12

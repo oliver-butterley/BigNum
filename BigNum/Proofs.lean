@@ -164,6 +164,18 @@ theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat 
   rw [B, A]
   exact rfl
 
+/-! ## Correctness of subtraction -/
+
+#eval subBitsWithBorrow false false false
+#eval subBitsWithBorrow true false false
+#eval subBitsWithBorrow false true false
+#eval subBitsWithBorrow true true false
+#eval subBitsWithBorrow false false true
+#eval subBitsWithBorrow true false true
+#eval subBitsWithBorrow false true true
+#eval subBitsWithBorrow true true true
+
+
 
 -- DEPRECATED
 
