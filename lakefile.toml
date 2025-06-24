@@ -8,7 +8,3 @@ name = "BigNum"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-
-[[lean_exe]]
-name = "bignum"
-root = "Main"

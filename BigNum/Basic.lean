@@ -35,11 +35,10 @@ def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
   let carryOut := (a && b) || (carry && (a != b))
   (resultBit, carryOut)
 
-#eval addBitsWithCarry true false false
-#eval addBitsWithCarry true true false
+#eval addBitsWithCarry true false true
+#eval addBitsWithCarry false true true
+#eval addBitsWithCarry false false true
 #eval addBitsWithCarry true true true
-#eval addBitsWithCarry false true false
-#eval addBitsWithCarry false false false
 
 /-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
 def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
