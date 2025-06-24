@@ -17,7 +17,7 @@ containing only characters "0" and "1".
 - Utility functions (`BigNum/Defs.lean`):
   - `strToNat`: converts bignat string to nat (*complete with correctness proof*)
   - `natToStr`: converts nat to bignat string (*complete with correctness proof*)
-- Formal correctness proofs provided for core arithmetic operations (`BigNum/Proofs.lean`)
+- Formal correctness proofs provided for core arithmetic operations
 - Every string is a bignat string in the sense that it corresponds to a `Nat`:
   - Most significant digit first as with standard written binary
   - Zero is represented by the empty string
