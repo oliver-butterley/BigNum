@@ -103,6 +103,7 @@ def listBoolToStr (bs : List Bool) : String :=
   String.mk <| (bs.reverse).map boolToChar
 
 /-- Converting from `List Bool` to `String` and back again is the identity. -/
+@[simp]
 theorem listBoolToStr_strToListBool_id (bools : List Bool) :
     strToListBool (listBoolToStr bools) = bools := by
   induction bools with
