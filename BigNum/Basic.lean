@@ -35,11 +35,6 @@ def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
   let carryOut := (a && b) || (carry && (a != b))
   (resultBit, carryOut)
 
-#eval addBitsWithCarry true false true
-#eval addBitsWithCarry false true true
-#eval addBitsWithCarry false false true
-#eval addBitsWithCarry true true true
-
 /-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
 def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
   match a, b with
@@ -95,9 +90,6 @@ theorem boolToCharList_charToBoolList_id (bools : List Bool) :
 -- Main addition function for binary numbers as character lists
 def addBinary (a b : List Char) : List Char :=
   boolToCharList <| addBoolList (charToBoolList a) (charToBoolList b)
-
-#eval addBinary ['1', '0', '1'] ['1', '0']
-#eval String.mk <| addBinary "1001".toList "1".toList
 
 /-- Addition of two binary numbers represented as strings. -/
 def add (a b : String) : String :=

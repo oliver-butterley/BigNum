@@ -34,6 +34,7 @@ lemma natToStr_listCharToNat (n : Nat) : listCharToNat (natToListChar n) = n := 
 /-! ## List Bool -/
 
 /-- Convenient lemma for the term used in the definition of `listCharToNat`. -/
+@[simp]
 lemma listBoolToNat_cons (h : Bool) (t : List Bool) :
   listBoolToNat (h :: t) = 2 * listBoolToNat t + (if h then 1 else 0) := rfl
 
@@ -71,6 +72,14 @@ lemma addBitsWithCarry_of_TFT : addBitsWithCarry true false true = (false, true)
 
 @[simp]
 lemma addBitsWithCarry_of_FTT : addBitsWithCarry false true true = (false, true) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_TTF : addBitsWithCarry true true false = (false, true) := by
+  simp [addBitsWithCarry]
+
+@[simp]
+lemma addBitsWithCarry_of_TTT : addBitsWithCarry true true true  = (true, true) := by
   simp [addBitsWithCarry]
 
 @[simp]
@@ -112,7 +121,6 @@ lemma addBoolList_of_carry' (bs : List Bool) :
 @[simp]
 lemma listBoolToNat_of_empty : listBoolToNat [] = 0 := by rfl
 
-
 /-- BigNum addition on `List Bool` agress with `Nat` addition. -/
 theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
     listBoolToNat (addBoolList a b carry) = listBoolToNat a + listBoolToNat b +
@@ -136,21 +144,7 @@ theorem addBoolList_correct (a b : List Bool) (carry : Bool) :
     · simp_all [hc]
   | case5 carry a as b bs sum newCarry h ih =>
     -- Case: `a::as, b::bs`
-    by_cases hc : carry
-    · simp_all [hc]
-
-      sorry
-    · simp_all [hc]
-      by_cases ha : a
-      · by_cases hb : b
-        · simp [ha, hb]
-          unfold addBoolList
-
-          sorry
-        ·
-          sorry
-      ·
-        sorry
+    by_cases carry <;> by_cases ha : a <;> by_cases hb : b <;> simp_all [addBoolList] <;> ring
 
 /-! ## String -/
 
