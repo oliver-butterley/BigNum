@@ -1,5 +1,5 @@
 name = "BigNum"
-version = "0.1.0"
+defaultTargets = ["BigNum"]
 
 [[lean_lib]]
 name = "BigNum"
