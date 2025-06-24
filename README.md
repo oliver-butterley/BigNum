@@ -11,9 +11,9 @@ containing only characters "0" and "1".
   - `add`: adds two bignat strings, (*complete with correctness proof*)
   - `sub`: computes the difference between two bignat strings (*in progress*)
   - `mul`: computes the product of two bignat strings (*to do*)
-  - `modadd`: addition modulo n, i.e., computes $$a+b mod n$$ (*to do*)
-  - `modmul`: multiplication modulo n, , i.e., computes $$a*b mod n$$ (*to do*)
-  - `modexp`: exponentiation modulo n, i.e., computes $$a^b mod n$$ (*to do*)
+  - `modadd`: addition modulo n, i.e., computes $$a+b \mod n$$ (*to do*)
+  - `modmul`: multiplication modulo n, , i.e., computes $$a*b \mod n$$ (*to do*)
+  - `modexp`: exponentiation modulo n, i.e., computes $$a^b \mod n$$ (*to do*)
 - Utility functions (`BigNum/Defs.lean`):
   - `strToNat`: converts bignat string to nat (*complete with correctness proof*)
   - `natToStr`: converts nat to bignat string (*complete with correctness proof*)
