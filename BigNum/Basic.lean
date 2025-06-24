@@ -120,7 +120,11 @@ def addBinary (a b : List Char) : List Char :=
 
 /-- Addition of two binary numbers represented as strings. -/
 def add (a b : String) : String :=
-  String.mk <| addBinary a.toList b.toList
+  listBoolToStr <| addListBool (strToListBool a) (strToListBool b)
+
+-- /-- Addition of two binary numbers represented as strings. -/
+-- def add (a b : String) : String :=
+--   String.mk <| addBinary a.toList b.toList
 
 #eval add "1001" "11"
 

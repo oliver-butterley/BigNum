@@ -146,12 +146,21 @@ theorem addListBool_correct (a b : List Bool) (carry : Bool) :
 lemma strToNat_natToStr_id n : strToNat (natToStr n) = n := by
   simp [strToNat, natToStr, natToStr_listCharToNat]
 
-/-- BigNum addition agress with `Nat` addition. -/
-theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat b := by
-  unfold strToNat
-  unfold add
+/-- Altenatively `strToNat` could be defined using this equality. -/
+@[simp]
+lemma strToListBool_listBoolToNat (a : String) : listBoolToNat (strToListBool a) = strToNat a := by
 
   sorry
 
--- theorem add_correct m n : strToNat (add (natToStr n) (natToStr m)) = n + m := by
---   sorry
+@[simp]
+lemma listBoolStr_strToNat (bs : List Bool) : strToNat (listBoolToStr bs) = listBoolToNat bs := by
+  rw [← strToListBool_listBoolToNat, listBoolToStr_strToListBool_id]
+
+/-- BigNum addition agress with `Nat` addition. -/
+theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat b := by
+  -- unfold strToNat
+  unfold add
+  have : listBoolToNat (addListBool (strToListBool a) (strToListBool b)) =
+      listBoolToNat (strToListBool a) + listBoolToNat (strToListBool b) := by
+    simp [addListBool_correct]
+  simp [this]
