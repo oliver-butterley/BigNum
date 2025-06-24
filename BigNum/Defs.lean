@@ -6,7 +6,7 @@ containing only characters "0" and "1".
 
 - We define natural numbers represented as bitstrings (e.g., "1011").
 - All operations are purely structural (not using built-in `+`, `-`, `*` in core logic).
-- Operations (`BigNum/Basic.lean`):
+- Operations (`BigNum/Defs.lean`):
   - `add`: adds two bignat strings,
   - `sub`: computes the difference between two bignat strings
   - `mul`: computes the product of two bignat strings
@@ -14,8 +14,8 @@ containing only characters "0" and "1".
   - `modmul`: multiplication modulo n, , i.e., computes a*b mod n
   - `modexp`: exponentiation modulo n, i.e., computes a^b mod n
 - Utility functions (`BigNum/Utils.lean`):
-  - `int2str`: converts bignat string to nat
-  - `str2int`: converts nat to bignat string
+  - `strToNat`: converts bignat string to nat
+  - `natToStr`: converts nat to bignat string
 - Formal correctness proofs provided for core arithmetic operations (`BigNum/Proofs.lean`)
 - Every string is a bignat string in the sense that it corresponds to a `Nat`:
   - Most significant digit first as with standard written binary
@@ -80,12 +80,6 @@ def charToBool : Char → Bool
 def boolToChar (b : Bool) : Char :=
   if b then '1' else '0'
 
-@[simp]
-theorem boolToChar_charToBool_id (b : Bool) : charToBool (boolToChar b) = b := by
-  by_cases hb : b
-  all_goals
-  · simp [hb, charToBool, boolToChar]
-
 /-- Convert `String` to `List Bool`. -/
 def strToListBool (s : String) : List Bool :=
   s.toList.reverse.map charToBool
@@ -93,19 +87,6 @@ def strToListBool (s : String) : List Bool :=
 /-- Convert `List Bool` back to `String`. -/
 def listBoolToStr (bs : List Bool) : String :=
   String.mk <| (bs.reverse).map boolToChar
-
-/-- Converting from `List Bool` to `String` and back again is the identity. -/
-@[simp]
-theorem listBoolToStr_strToListBool_id (bools : List Bool) :
-    strToListBool (listBoolToStr bools) = bools := by
-  induction bools with
-  | nil =>
-    simp [strToListBool, listBoolToStr]
-  | cons bh bt ih =>
-    suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
-      simpa [strToListBool, listBoolToStr]
-    refine List.map_id'' (fun a ↦ ?_) bt
-    exact boolToChar_charToBool_id a
 
 /-- Convert any string to a `Nat` by interpreting the characters as bit values.
 - Zerosy values are `0` or ` `;
@@ -115,13 +96,13 @@ def strToNat (s : String) := listBoolToNat (strToListBool s)
 
 def natToStr (n : Nat) : String := listBoolToStr (natToListBool n)
 
-
 /-! ## Define addition for binary numbers written as strings. -/
 
 /-- Addition of two binary numbers represented as strings. -/
 def add (a b : String) : String :=
   listBoolToStr <| addListBool (strToListBool a) (strToListBool b)
 
+-- Example
 #eval add "1001" "11"
 
 -- def sub (a b : String) : Option String :=

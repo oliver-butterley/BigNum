@@ -1,38 +1,20 @@
 import Mathlib
 import BigNum.Defs
-import BigNum.Utils
 
-/-! # Proofs of correctness of the definitions. -/
+/-! # Proofs of correctness of the definitions.
 
-/-! ## List Char -/
+Main results:
 
-/-- Convenient lemma for the term used in the definition of `natToListChar`. -/
-lemma bitVal_of_mod_two (n : Nat) : bitVal (if n % 2 = 1 then '1' else '0') = n % 2 := by
-  by_cases h : n % 2 = 1
-  · simp [h, bitVal]
-  · have : n % 2 = 0 := (Nat.mod_two_eq_zero_or_one n).resolve_right h
-    simp [this, bitVal]
+* `natToStr_strToNat`: converting a natural number to a BigNum string and then back is the identity,
+  i.e., `strToNat (natToStr n) = n`.
+* `add_correct`: addition of BigNums corresponds to addition of the natural numbers, i.e., given
+  strings `a`, `b`, `strToNat (add a b) = strToNat a + strToNat b`.
 
-/-- Convenient lemma for the term used in the definition of `listCharToNat`. -/
-lemma listCharToNat_cons (h : Char) (t : List Char) :
-  listCharToNat (h :: t) = 2 * listCharToNat t + bitVal h := rfl
+-/
 
-/-- Converting a `Nat` to a `List Char` and then back is the identity. -/
-lemma natToStr_listCharToNat (n : Nat) : listCharToNat (natToListChar n) = n := by
-  induction n using Nat.strong_induction_on with
-  | h n ih =>
-    by_cases h : n = 0
-    · simp [h, natToListChar, listCharToNat]
-    · suffices
-          2 * listCharToNat (natToListChar (n / 2)) + bitVal (if n % 2 = 1 then '1' else '0') = n by
-        unfold natToListChar; simpa [h, listCharToNat_cons]
-      have div_lt : n / 2 < n := Nat.div_lt_self (Nat.pos_of_ne_zero h) (by norm_num)
-      rw [ih (n / 2) div_lt, bitVal_of_mod_two]
-      omega
+/-! ## Conversion between `List Bool` and `Nat`. -/
 
-/-! ## List Bool -/
-
-/-- Convenient lemma for the term used in the definition of `listCharToNat`. -/
+/-- Convenient lemma for the term which occurs in `listBoolToNat`. -/
 @[simp]
 lemma listBoolToNat_cons (h : Bool) (t : List Bool) :
   listBoolToNat (h :: t) = 2 * listBoolToNat t + (if h then 1 else 0) := rfl
@@ -54,9 +36,32 @@ lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = 
       all_goals
       · simp only [hc, reduceIte]; omega
 
-/-- Converting a `Nat` to a `List Char` and then back is the identity. -/
+/-! ## Conversion between strings, `List Bool` and `Nat`. -/
+
+@[simp]
+theorem boolToChar_charToBool_id (b : Bool) : charToBool (boolToChar b) = b := by
+  by_cases hb : b
+  all_goals
+  · simp [hb, charToBool, boolToChar]
+
+/-- Converting from `List Bool` to `String` and back again is the identity. -/
+@[simp]
+theorem listBoolToStr_strToListBool_id (bools : List Bool) :
+    strToListBool (listBoolToStr bools) = bools := by
+  induction bools with
+  | nil =>
+    simp [strToListBool, listBoolToStr]
+  | cons bh bt ih =>
+    suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
+      simpa [strToListBool, listBoolToStr]
+    refine List.map_id'' (fun a ↦ ?_) bt
+    exact boolToChar_charToBool_id a
+
+/-- Converting a `Nat` to a string and then back is the identity. -/
+@[simp]
 lemma natToStr_strToNat (n : Nat) : strToNat (natToStr n) = n := by
   simp [strToNat, natToStr]
+
 
 /-! ## Correctness of addition -/
 
@@ -89,20 +94,20 @@ lemma addBitsWithCarry_of_TTT : addBitsWithCarry true true true  = (true, true) 
   simp [addBitsWithCarry]
 
 @[simp]
-lemma addListBool_of_empty (bs : List Bool) : addListBool [] bs = bs := by
+lemma addListBool_of_empty_left (bs : List Bool) : addListBool [] bs = bs := by
   induction bs with
   | nil => simp [addListBool]
   | cons h t ih => simpa [addListBool, addBitsWithCarry_of_FXF]
 
 @[simp]
-lemma addListBool_of_empty' (bs : List Bool) : addListBool bs [] = bs := by
+lemma addListBool_of_empty_right (bs : List Bool) : addListBool bs [] = bs := by
   induction bs with
   | nil => simp [addListBool]
   | cons h t ih =>
     simpa [addListBool]
 
 @[simp]
-lemma addListBool_of_carry (bs : List Bool) :
+lemma addListBool_of_empty_left_of_carry (bs : List Bool) :
     listBoolToNat (addListBool [] bs true) = listBoolToNat bs + 1 := by
   induction bs with
   | nil => simp [listBoolToNat, addListBool]
@@ -113,7 +118,7 @@ lemma addListBool_of_carry (bs : List Bool) :
     · simp [hh, addListBool, listBoolToNat, ih]
 
 @[simp]
-lemma addListBool_of_carry' (bs : List Bool) :
+lemma addListBool_of_empty_right_of_carry (bs : List Bool) :
     listBoolToNat (addListBool  bs [] true) = listBoolToNat bs + 1 := by
   induction bs with
   | nil => simp [listBoolToNat, addListBool]
@@ -145,21 +150,7 @@ theorem addListBool_correct (a b : List Bool) (carry : Bool) :
     -- Case: `a::as, b::bs`
     by_cases carry <;> by_cases ha : a <;> by_cases hb : b <;> simp_all [addListBool] <;> ring
 
-/-! ## String -/
-
-/-- Converting a `Nat` to a string and then back is the identity. -/
-@[simp]
-lemma strToNat_natToStr_id n : strToNat' (natToStr' n) = n := by
-  simp [strToNat', natToStr', natToStr_listCharToNat]
-
--- /-- Altenatively `strToNat` could be defined using this equality. -/
--- @[simp]
--- lemma strToListBool_listBoolToNat (a : String) : listBoolToNat (strToListBool a) = strToNat' a := by
---   sorry
-
--- @[simp]
--- lemma listBoolStr_strToNat (bs : List Bool) : strToNat' (listBoolToStr bs) = listBoolToNat bs := by
---   rw [← strToListBool_listBoolToNat, listBoolToStr_strToListBool_id]
+/-! ## Addition of BigNum strings -/
 
 /-- BigNum addition agress with `Nat` addition. -/
 theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat b := by
@@ -172,3 +163,47 @@ theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat 
     rw [listBoolToStr_strToListBool_id bs]
   rw [B, A]
   exact rfl
+
+
+-- DEPRECATED
+
+-- /-! ## List Char -/
+
+-- /-- Convenient lemma for the term used in the definition of `natToListChar`. -/
+-- lemma bitVal_of_mod_two (n : Nat) : bitVal (if n % 2 = 1 then '1' else '0') = n % 2 := by
+--   by_cases h : n % 2 = 1
+--   · simp [h, bitVal]
+--   · have : n % 2 = 0 := (Nat.mod_two_eq_zero_or_one n).resolve_right h
+--     simp [this, bitVal]
+
+-- /-- Convenient lemma for the term used in the definition of `listCharToNat`. -/
+-- lemma listCharToNat_cons (h : Char) (t : List Char) :
+--   listCharToNat (h :: t) = 2 * listCharToNat t + bitVal h := rfl
+
+-- /-- Converting a `Nat` to a `List Char` and then back is the identity. -/
+-- lemma natToStr_listCharToNat (n : Nat) : listCharToNat (natToListChar n) = n := by
+--   induction n using Nat.strong_induction_on with
+--   | h n ih =>
+--     by_cases h : n = 0
+--     · simp [h, natToListChar, listCharToNat]
+--     · suffices
+--           2 * listCharToNat (natToListChar (n / 2)) + bitVal (if n % 2 = 1 then '1' else '0') = n by
+--         unfold natToListChar; simpa [h, listCharToNat_cons]
+--       have div_lt : n / 2 < n := Nat.div_lt_self (Nat.pos_of_ne_zero h) (by norm_num)
+--       rw [ih (n / 2) div_lt, bitVal_of_mod_two]
+--       omega
+
+
+-- /-- Converting a `Nat` to a string and then back is the identity. -/
+-- @[simp]
+-- lemma strToNat_natToStr_id n : strToNat' (natToStr' n) = n := by
+--   simp [strToNat', natToStr', natToStr_listCharToNat]
+
+-- /-- Altenatively `strToNat` could be defined using this equality. -/
+-- @[simp]
+-- lemma strToListBool_listBoolToNat (a : String) : listBoolToNat (strToListBool a) = strToNat' a := by
+--   sorry
+
+-- @[simp]
+-- lemma listBoolStr_strToNat (bs : List Bool) : strToNat' (listBoolToStr bs) = listBoolToNat bs := by
+--   rw [← strToListBool_listBoolToNat, listBoolToStr_strToListBool_id]
