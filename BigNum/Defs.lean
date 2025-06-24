@@ -119,6 +119,7 @@ def subListBool (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :
   match a, b with
   | [], [] => ([], borrow)
   | [], b::bs =>
+    -- This case is never relevant since we return [] when there is an overflow at the end.
     let (diff, newBorrow) := subBitsWithBorrow false b borrow
     let (rest, finalBorrow) := subListBool [] bs newBorrow
     (diff :: rest, finalBorrow)
