@@ -147,9 +147,9 @@ def subListBool' (a b : List Bool) : List Bool :=
 -- def subListBoolClean (a b : List Bool) : List Bool :=
 --   removeLeadingZeros (subListBoolSimple a b)
 
-/-! ## Define addition for binary numbers written as strings. -/
+/-! ## Define subtraction for binary numbers written as strings. -/
 
-/-- Addition of two binary numbers represented as strings. -/
+/-- Subtraction of two binary numbers represented as strings. -/
 def sub (a b : String) : String :=
   listBoolToStr <| subListBool' (strToListBool a) (strToListBool b)
 
