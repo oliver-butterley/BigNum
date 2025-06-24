@@ -1,9 +1,8 @@
 import Mathlib
-import BigNum.Basic
+import BigNum.Defs
 import BigNum.Utils
 
 /-! # Proofs of correctness of the definitions. -/
-
 
 /-! ## List Char -/
 
@@ -39,6 +38,7 @@ lemma listBoolToNat_cons (h : Bool) (t : List Bool) :
   listBoolToNat (h :: t) = 2 * listBoolToNat t + (if h then 1 else 0) := rfl
 
 /-- Converting a `Nat` to a `List Bool` and then back is the identity. -/
+@[simp]
 lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = n := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
@@ -53,6 +53,12 @@ lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = 
       by_cases hc : n % 2 = 1
       all_goals
       · simp only [hc, reduceIte]; omega
+
+/-- Converting a `Nat` to a `List Char` and then back is the identity. -/
+lemma natToStr_strToNat (n : Nat) : strToNat (natToStr n) = n := by
+  simp [strToNat, natToStr]
+
+/-! ## Correctness of addition -/
 
 @[simp]
 lemma addBitsWithCarry_of_FXF (b : Bool) : addBitsWithCarry false b false = (b, false) := by
@@ -143,8 +149,8 @@ theorem addListBool_correct (a b : List Bool) (carry : Bool) :
 
 /-- Converting a `Nat` to a string and then back is the identity. -/
 @[simp]
-lemma strToNat_natToStr_id n : strToNat' (natToStr n) = n := by
-  simp [strToNat', natToStr, natToStr_listCharToNat]
+lemma strToNat_natToStr_id n : strToNat' (natToStr' n) = n := by
+  simp [strToNat', natToStr', natToStr_listCharToNat]
 
 -- /-- Altenatively `strToNat` could be defined using this equality. -/
 -- @[simp]

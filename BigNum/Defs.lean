@@ -55,7 +55,19 @@ def addListBool (a b : List Bool) (carry : Bool := false) : List Bool :=
     let (sum, newCarry) := addBitsWithCarry a b carry
     sum :: addListBool as bs newCarry
 
-/-! ## Define addition for binary numbers written as strings. -/
+/-! ## Conversion between `List Bool` and `Nat`. -/
+
+/-- Convert `List Bool` to a `Nat`. -/
+def listBoolToNat : List Bool → Nat
+  | [] => 0
+  | h::t => 2 * listBoolToNat t + (if h then 1 else 0)
+
+/-- Convert a `Nat` to a `List Bool`. -/
+def natToListBool (n : Nat) : List Bool :=
+  if n = 0 then []
+  else (if n % 2 = 1 then true else false) :: natToListBool (n / 2)
+
+/-! ## Conversion between strings, `List Bool` and `Nat`. -/
 
 /-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
 else is interpreted as `1`. -/
@@ -73,26 +85,6 @@ theorem boolToChar_charToBool_id (b : Bool) : charToBool (boolToChar b) = b := b
   by_cases hb : b
   all_goals
   · simp [hb, charToBool, boolToChar]
-
-/-- Convert list of chars to list of bools. -/
-def charToBoolList (chars : List Char) : List Bool :=
-  (chars.reverse.map charToBool)
-
-/-- Convert list of bools back to chars. -/
-def boolToCharList (bools : List Bool) : List Char :=
-  (bools.reverse).map boolToChar
-
-/-- Converting from `List Bool` to `list Char` and back again is the identity. -/
-theorem boolToCharList_charToBoolList_id (bools : List Bool) :
-    charToBoolList (boolToCharList bools) = bools := by
-  induction bools with
-  | nil =>
-    simp [charToBoolList, boolToCharList]
-  | cons bh bt ih =>
-    suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
-      simpa [charToBoolList, boolToCharList, ih]
-    refine List.map_id'' (fun a ↦ ?_) bt
-    exact boolToChar_charToBool_id a
 
 /-- Convert `String` to `List Bool`. -/
 def strToListBool (s : String) : List Bool :=
@@ -115,17 +107,20 @@ theorem listBoolToStr_strToListBool_id (bools : List Bool) :
     refine List.map_id'' (fun a ↦ ?_) bt
     exact boolToChar_charToBool_id a
 
--- Main addition function for binary numbers as character lists
-def addBinary (a b : List Char) : List Char :=
-  boolToCharList <| addListBool (charToBoolList a) (charToBoolList b)
+/-- Convert any string to a `Nat` by interpreting the characters as bit values.
+- Zerosy values are `0` or ` `;
+- Onesy values are `1` and any other character.
+Most significant digit first as with standard written binary. -/
+def strToNat (s : String) := listBoolToNat (strToListBool s)
+
+def natToStr (n : Nat) : String := listBoolToStr (natToListBool n)
+
+
+/-! ## Define addition for binary numbers written as strings. -/
 
 /-- Addition of two binary numbers represented as strings. -/
 def add (a b : String) : String :=
   listBoolToStr <| addListBool (strToListBool a) (strToListBool b)
-
--- /-- Addition of two binary numbers represented as strings. -/
--- def add (a b : String) : String :=
---   String.mk <| addBinary a.toList b.toList
 
 #eval add "1001" "11"
 

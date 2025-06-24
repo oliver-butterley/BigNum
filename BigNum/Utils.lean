@@ -1,4 +1,4 @@
-import BigNum.Basic
+import BigNum.Defs
 /-! Utilities for converting between bignum strings and `Nat`. -/
 
 /-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
@@ -29,26 +29,8 @@ def natToListChar (n : Nat) : List Char :=
 Most significant digit first as with standard written binary. -/
 def strToNat' (s : String) : Nat := listCharToNat s.toList.reverse
 
-def natToStr (n : Nat) : String := String.mk (natToListChar n).reverse
+def natToStr' (n : Nat) : String := String.mk (natToListChar n).reverse
 
-#eval natToStr 5
-#eval natToStr 0
-#eval strToNat' <| natToStr 12
-
-/-! ## List Bool -/
-
-/-- Convert `List Bool` to a `Nat`. -/
-def listBoolToNat : List Bool → Nat
-  | [] => 0
-  | h::t => 2 * listBoolToNat t + (if h then 1 else 0)
-
-/-- Convert a `Nat` to a `List Bool`. -/
-def natToListBool (n : Nat) : List Bool :=
-  if n = 0 then []
-  else (if n % 2 = 1 then true else false) :: natToListBool (n / 2)
-
-/-- Convert any string to a `Nat` by interpreting the characters as bit values.
-- Zerosy values are `0` or ` `;
-- Onesy values are `1` and any other character.
-Most significant digit first as with standard written binary. -/
-def strToNat (s : String) := listBoolToNat (strToListBool s)
+#eval natToStr' 5
+#eval natToStr' 0
+#eval strToNat' <| natToStr' 12
