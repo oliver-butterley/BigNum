@@ -164,6 +164,9 @@ theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat 
   rw [B, A]
   exact rfl
 
+theorem add_correct' (m n : Nat) : strToNat (add (natToStr m) (natToStr n)) = m + n := by
+  simp [add_correct]
+
 /-! ## Correctness of subtraction -/
 
 #eval subBitsWithBorrow false false false

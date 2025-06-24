@@ -115,25 +115,25 @@ def subBitsWithBorrow (a b borrow : Bool) : Bool × Bool :=
 
 /-- Subtract two binary numbers represented as lists of booleans (least significant bit first).
 Computes a - b. Returns the result and whether there was an underflow. -/
-def subListBool' (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
+def subListBool (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
   match a, b with
   | [], [] => ([], borrow)
   | [], b::bs =>
     let (diff, newBorrow) := subBitsWithBorrow false b borrow
-    let (rest, finalBorrow) := subListBool' [] bs newBorrow
+    let (rest, finalBorrow) := subListBool [] bs newBorrow
     (diff :: rest, finalBorrow)
   | a::as, [] =>
     let (diff, newBorrow) := subBitsWithBorrow a false borrow
-    let (rest, finalBorrow) := subListBool' as [] newBorrow
+    let (rest, finalBorrow) := subListBool as [] newBorrow
     (diff :: rest, finalBorrow)
   | a::as, b::bs =>
     let (diff, newBorrow) := subBitsWithBorrow a b borrow
-    let (rest, finalBorrow) := subListBool' as bs newBorrow
+    let (rest, finalBorrow) := subListBool as bs newBorrow
     (diff :: rest, finalBorrow)
 
 /-- Subtract two binary numbers, returning just the result or zero if negative. -/
-def subListBool (a b : List Bool) : List Bool :=
-  if (subListBool' a b).2 then [] else (subListBool' a b).1
+def subListBool' (a b : List Bool) : List Bool :=
+  if (subListBool a b).2 then [] else (subListBool a b).1
 
 -- /-- Helper function to remove leading zeros from a binary number. -/
 -- def removeLeadingZeros (bits : List Bool) : List Bool :=
@@ -150,12 +150,13 @@ def subListBool (a b : List Bool) : List Bool :=
 
 /-- Addition of two binary numbers represented as strings. -/
 def sub (a b : String) : String :=
-  listBoolToStr <| subListBool (strToListBool a) (strToListBool b)
+  listBoolToStr <| subListBool' (strToListBool a) (strToListBool b)
 
 -- Example
 #eval sub "1001" "11"
 #eval sub "1001" "001"
 #eval sub "10" "11"
+#eval strToNat (sub (natToStr 7) (natToStr 3))
 
 
 
