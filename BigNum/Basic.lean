@@ -27,7 +27,13 @@ containing only characters "0" and "1".
   - Only the characters `1` or `0`
 -/
 
-/-! ## Define binary addition for list of booleans. -/
+/-! ## Define binary addition for list of booleans.
+
+Rather than defining the operations directly for strings, the operations are defined on `List Bool`
+as the binary representation with the least significant digit first. This choice has the convenience
+of using `::` since the order is reversed compared to written binary and that any occurences of
+`a = '1'` if `a : Char` become simply `a` when `a : Bool`.
+-/
 
 /-- Add two bits with carry. -/
 def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
@@ -36,18 +42,18 @@ def addBitsWithCarry (a b carry : Bool) : Bool × Bool :=
   (resultBit, carryOut)
 
 /-- Add two binary numbers represented as lists of booleans (least significant bit first). -/
-def addBoolList (a b : List Bool) (carry : Bool := false) : List Bool :=
+def addListBool (a b : List Bool) (carry : Bool := false) : List Bool :=
   match a, b with
   | [], [] => if carry then [true] else []
   | [], b::bs =>
     let (sum, newCarry) := addBitsWithCarry false b carry
-    sum :: addBoolList [] bs newCarry
+    sum :: addListBool [] bs newCarry
   | a::as, [] =>
     let (sum, newCarry) := addBitsWithCarry a false carry
-    sum :: addBoolList as [] newCarry
+    sum :: addListBool as [] newCarry
   | a::as, b::bs =>
     let (sum, newCarry) := addBitsWithCarry a b carry
-    sum :: addBoolList as bs newCarry
+    sum :: addListBool as bs newCarry
 
 /-! ## Define addition for binary numbers written as strings. -/
 
@@ -62,6 +68,7 @@ def charToBool : Char → Bool
 def boolToChar (b : Bool) : Char :=
   if b then '1' else '0'
 
+@[simp]
 theorem boolToChar_charToBool_id (b : Bool) : charToBool (boolToChar b) = b := by
   by_cases hb : b
   all_goals
@@ -83,13 +90,33 @@ theorem boolToCharList_charToBoolList_id (bools : List Bool) :
     simp [charToBoolList, boolToCharList]
   | cons bh bt ih =>
     suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
-      simpa [charToBoolList, boolToCharList, ih, boolToChar_charToBool_id]
+      simpa [charToBoolList, boolToCharList, ih]
+    refine List.map_id'' (fun a ↦ ?_) bt
+    exact boolToChar_charToBool_id a
+
+/-- Convert `String` to `List Bool`. -/
+def strToListBool (s : String) : List Bool :=
+  s.toList.reverse.map charToBool
+
+/-- Convert `List Bool` back to `String`. -/
+def listBoolToStr (bs : List Bool) : String :=
+  String.mk <| (bs.reverse).map boolToChar
+
+/-- Converting from `List Bool` to `String` and back again is the identity. -/
+theorem listBoolToStr_strToListBool_id (bools : List Bool) :
+    strToListBool (listBoolToStr bools) = bools := by
+  induction bools with
+  | nil =>
+    simp [strToListBool, listBoolToStr]
+  | cons bh bt ih =>
+    suffices h : List.map (charToBool ∘ boolToChar) bt = bt by
+      simpa [strToListBool, listBoolToStr]
     refine List.map_id'' (fun a ↦ ?_) bt
     exact boolToChar_charToBool_id a
 
 -- Main addition function for binary numbers as character lists
 def addBinary (a b : List Char) : List Char :=
-  boolToCharList <| addBoolList (charToBoolList a) (charToBoolList b)
+  boolToCharList <| addListBool (charToBoolList a) (charToBoolList b)
 
 /-- Addition of two binary numbers represented as strings. -/
 def add (a b : String) : String :=
