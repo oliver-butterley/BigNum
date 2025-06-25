@@ -30,7 +30,9 @@ containing only characters "0" and "1".
 /-! ## Define binary addition for list of booleans.
 
 Rather than defining the operations directly for strings, the operations are defined on `List Bool`
-as the binary representation with the least significant digit first. This choice has the convenience
+as the binary representation with the least significant digit first.
+
+This choice has the convenience
 of using `::` since the order is reversed compared to written binary and that any occurences of
 `a = '1'` if `a : Char` become simply `a` when `a : Bool`.
 -/
@@ -159,11 +161,34 @@ def sub (a b : String) : String :=
 #eval sub "10" "11"
 #eval strToNat (sub (natToStr 7) (natToStr 3))
 
+/-! ## Define multiplication for list of booleans -/
 
+def shiftLeft (bits : List Bool) : List Bool :=
+  false :: bits
 
--- def sub (a b : String) : Option String :=
+def mulListBool (a b : List Bool) : List Bool :=
+  let rec aux (a b : List Bool) (acc : List Bool) : List Bool :=
+    match b with
+    | [] => acc
+    | false :: tb => aux (shiftLeft a) tb acc
+    | true :: tb => aux (shiftLeft a) tb (addListBool acc a)
+  aux a b []
 
--- def mul (a b : String) : String :=
+-- Example usage:
+#eval mulListBool [true, false, true] [true, true] -- 5 * 3 = 15
+-- Expected: [true, true, true, true] (15 in binary: 1111)
+
+/-! ## Define multiplication for binary numbers written as strings. -/
+
+/-- Subtraction of two binary numbers represented as strings. -/
+def mul (a b : String) : String :=
+  listBoolToStr <| mulListBool (strToListBool a) (strToListBool b)
+
+#eval mul "1001" "11"
+#eval mul "1001" "001"
+#eval mul "10" "11"
+#eval strToNat (mul (natToStr 7) (natToStr 3))
+
 
 -- def modadd (a b m : String) : String :=
 
