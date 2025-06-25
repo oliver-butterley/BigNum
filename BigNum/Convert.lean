@@ -63,6 +63,11 @@ theorem listBoolToStr_strToListBool_id (bools : List Bool) :
 lemma natToStr_strToNat (n : Nat) : strToNat (natToStr n) = n := by
   simp [strToNat, natToStr]
 
+@[simp]
+lemma listBoolToStr_strToNat bs : strToNat (listBoolToStr bs) = listBoolToNat bs := by
+    unfold strToNat
+    rw [listBoolToStr_strToListBool_id bs]
+
 
 -- DEPRECATED
 

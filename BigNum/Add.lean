@@ -77,7 +77,7 @@ lemma addListBool_of_empty_right_of_carry (bs : List Bool) :
     · simp [hh, addListBool, listBoolToNat, ih]
 
 /-- BigNum addition on `List Bool` agress with `Nat` addition. -/
-theorem addListBool_correct (a b : List Bool) (carry : Bool) :
+theorem addListBool_listBoolToNat (a b : List Bool) (carry : Bool) :
     listBoolToNat (addListBool a b carry) = listBoolToNat a + listBoolToNat b +
     (if carry then 1 else 0) := by
   induction a, b, carry using addListBool.induct with
@@ -102,7 +102,7 @@ theorem add_correct (a b : String) : strToNat (add a b) = strToNat a + strToNat 
   unfold add
   have A : listBoolToNat (addListBool (strToListBool a) (strToListBool b)) =
       listBoolToNat (strToListBool a) + listBoolToNat (strToListBool b) := by
-    simp [addListBool_correct]
+    simp [addListBool_listBoolToNat]
   have B bs : strToNat (listBoolToStr bs) = listBoolToNat bs := by
     unfold strToNat
     rw [listBoolToStr_strToListBool_id bs]

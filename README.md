@@ -10,7 +10,7 @@ containing only characters "0" and "1".
 - Operations (`BigNum/Defs.lean`):
   - `add`: adds two bignat strings, (*complete with correctness proof*)
   - `sub`: computes the difference between two bignat strings
-  - `mul`: computes the product of two bignat strings (*in progress*)
+  - `mul`: computes the product of two bignat strings (*complete with correctness proof*)
   - `modadd`: addition modulo n, i.e., computes $$a+b \mod n$$ (*to do*)
   - `modmul`: multiplication modulo n, , i.e., computes $$a*b \mod n$$ (*to do*)
   - `modexp`: exponentiation modulo n, i.e., computes $$a^b \mod n$$ (*to do*)

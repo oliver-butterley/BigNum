@@ -163,16 +163,24 @@ def sub (a b : String) : String :=
 
 /-! ## Define multiplication for list of booleans -/
 
-def shiftLeft (bits : List Bool) : List Bool :=
-  false :: bits
+def shiftLeft (bs : List Bool) : List Bool :=
+  match bs with
+  | [] => []
+  | bs => false :: bs
+
+#eval shiftLeft []
+#eval shiftLeft [true]
+
+def mulListBool_aux (a b : List Bool) (acc : List Bool) : List Bool :=
+  match b with
+  | [] => acc
+  | false :: tb => mulListBool_aux (shiftLeft a) tb acc
+  | true :: tb => mulListBool_aux (shiftLeft a) tb (addListBool acc a)
+
+#eval mulListBool_aux [true, true] [] [true, false]
 
 def mulListBool (a b : List Bool) : List Bool :=
-  let rec aux (a b : List Bool) (acc : List Bool) : List Bool :=
-    match b with
-    | [] => acc
-    | false :: tb => aux (shiftLeft a) tb acc
-    | true :: tb => aux (shiftLeft a) tb (addListBool acc a)
-  aux a b []
+  mulListBool_aux a b []
 
 -- Example usage:
 #eval mulListBool [true, false, true] [true, true] -- 5 * 3 = 15
@@ -187,7 +195,7 @@ def mul (a b : String) : String :=
 #eval mul "1001" "11"
 #eval mul "1001" "001"
 #eval mul "10" "11"
-#eval strToNat (mul (natToStr 7) (natToStr 3))
+#eval strToNat (mul (natToStr 7) (natToStr 4))
 
 
 -- def modadd (a b m : String) : String :=
