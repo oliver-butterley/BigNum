@@ -4,9 +4,14 @@ import BigNum.Convert
 
 /-! # Proofs of correctness of the definitions.
 
+Subtraction of BigNums corresponds to subtraction of the natural numbers.
+
 Main results:
 
-* `sub_correct`: subtraction of BigNums corresponds to subtraction of the natural numbers.
+* `sub_correct`: `strToNat (sub a b) = strToNat a - strToNat b`;
+* `sub_correct'`: `strToNat (sub (natToStr m) (natToStr n)) = m - n`.
+
+Remark: if `m < n` then `m - n = 0`.
 -/
 
 #eval subBitsWithBorrow false false false

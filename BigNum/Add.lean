@@ -4,11 +4,12 @@ import BigNum.Convert
 
 /-! # Correctness of addition.
 
+Addition of BigNums corresponds to addition of the natural numbers.
+
 Main results:
 
-* `add_correct`: addition of BigNums corresponds to addition of the natural numbers, i.e., given
-  strings `a`, `b`, `strToNat (add a b) = strToNat a + strToNat b`.
-
+* `add_correct`: `strToNat (add a b) = strToNat a + strToNat b`;
+* `add_correct'`: `strToNat (add (natToStr m) (natToStr n)) = m + n`.
 -/
 
 /-! ## Addition of List Bool -/

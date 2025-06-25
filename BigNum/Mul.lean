@@ -5,10 +5,12 @@ import BigNum.Convert
 
 /-! # Correctness of multiplication.
 
+Multiplication of BigNums corresponds to multiplication of the natural numbers.
+
 Main results:
 
-* `mul_correct`: multiplication of BigNums corresponds to multiplication of the natural numbers,
-  i.e., given strings `a`, `b`, `strToNat (mul a b) = strToNat a * strToNat b`.
+* `mul_correct`: `strToNat (mul a b) = strToNat a * strToNat b`;
+* `mul_correct'`: `strToNat (mul (natToStr m) (natToStr n)) = m * n`.
 
 -/
 
@@ -18,10 +20,7 @@ Main results:
 lemma shiftLeft_of_empty : shiftLeft [] = [] := rfl
 
 @[simp]
-lemma shiftLeft_of_true : shiftLeft [true] = [false, true] := rfl
-
-@[simp]
-lemma listBoolToNat_shiftLeft (bs : List Bool) :
+lemma shiftLeft_listBoolToNat (bs : List Bool) :
     listBoolToNat (shiftLeft bs) = 2 * listBoolToNat bs := by
   induction bs with
   | nil => simp
@@ -70,6 +69,7 @@ theorem mulListBool_correct (a b : List Bool) :
 /-! ## multiplication of BigNum strings -/
 
 /-- BigNum multiplication agrees with `Nat` multiplication. -/
+@[simp]
 theorem mul_correct (a b : String) : strToNat (mul a b) = strToNat a * strToNat b := by
   unfold mul
   simpa using mulListBool_correct (strToListBool a) (strToListBool b)
