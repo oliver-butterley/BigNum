@@ -19,18 +19,52 @@ def isZero (bs : List Bool) : Prop := match bs with
   | false :: tail => isZero tail
 
 /-- Check if a List Bool has exactly one bit set. -/
-def isPowerOfTwo (c : List Bool) : Prop := match c with
+def isPowerOfTwo (bs : List Bool) : Prop := match bs with
   | [] => False
   | true :: tail => isZero tail
   | false :: tail => isPowerOfTwo tail
 
 /-- Check if a number is one -/
-def isOne (a : List Bool) : Prop :=
-  match a with
+def isOne (bs : List Bool) : Prop :=
+  match bs with
   | [true] => True
   | true :: t => isZero t
   | _ => False
 
+/-- Remove leading falses. -/
+def removeLeadingZeros (bs : List Bool) : List Bool :=
+  match bs with
+  | [] => []
+  | false :: tail => removeLeadingZeros tail
+  | true :: _ => bs  -- begins with true, don't remove anything
+
+-- /-- Remove a single trailing false if it exists. -/
+-- def removeTrailingZero (bs : List Bool) : List Bool :=
+--   match bs.reverse with
+--   | [] => []
+--   | false :: tail => tail.reverse
+--   | true :: _ => bs  -- ends with true, don't remove anything
+
+-- /-- Remove a single trailing false if it exists. -/
+-- def removeTrailingZeros (bs : List Bool) : List Bool :=
+--   match bs.reverse with
+--   | [] => []
+--   | false :: tail => removeTrailingZeros tail.reverse
+--   | true :: _ => bs  -- ends with true, don't remove anything
+--   termination_by bs.reverse.length
+--   decreasing_by
+--     simp [List.length_reverse]
+--     sorry
+
+-- /-- Remove trailing zeros. -/
+-- def removeTrailingZeros' (bs : List Bool) : List Bool :=
+--   (bs.reverse.dropWhile (· = false)).reverse
+
+/-- Remove trailing zeros. -/
+def removeTrailingZeros (bs : List Bool) : List Bool :=
+  (removeLeadingZeros bs.reverse).reverse
+
+-- TO DO: modify this to use another `List Bool` for counting, not `remaining : Nat`
 /-- Take modulo 2^n by keeping only the first n bits (least significant) -/
 def modPowerOfTwo (a : List Bool) (n : Nat) : List Bool :=
   let rec takeFirstN (bits : List Bool) (remaining : Nat) : List Bool :=

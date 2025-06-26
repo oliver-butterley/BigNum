@@ -18,7 +18,7 @@ lemma listBoolToNat_of_empty : listBoolToNat [] = 0 := by rfl
 /-- Convenient lemma for the term which occurs in `listBoolToNat`. -/
 @[simp]
 lemma listBoolToNat_cons (h : Bool) (t : List Bool) :
-  listBoolToNat (h :: t) = 2 * listBoolToNat t + (if h then 1 else 0) := rfl
+  listBoolToNat (h :: t) = 2 * listBoolToNat t + h.toNat := rfl
 
 /-- Converting a `Nat` to a `List Bool` and then back is the identity. -/
 @[simp]
@@ -27,15 +27,14 @@ lemma natToListBool_listBoolToNat (n : Nat) : listBoolToNat (natToListBool n) = 
   | h n ih =>
     by_cases h : n = 0
     · simp [h, natToListBool, listBoolToNat]
-    · suffices
-          (2 * listBoolToNat (natToListBool (n / 2)) + if n % 2 = 1 then 1 else 0) = n by
+    · suffices 2 * listBoolToNat (natToListBool (n / 2)) + (decide (n % 2 = 1)).toNat = n by
         unfold natToListBool
         simpa [h, listBoolToNat_cons]
       have div_lt : n / 2 < n := Nat.div_lt_self (Nat.pos_of_ne_zero h) (by norm_num)
       rw [ih (n / 2) div_lt]
       by_cases hc : n % 2 = 1
       all_goals
-      · simp only [hc, reduceIte]; omega
+      · simp [hc]; omega
 
 /-! ## Conversion between strings, `List Bool` and `Nat`. -/
 

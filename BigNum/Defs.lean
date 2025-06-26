@@ -65,7 +65,7 @@ def addListBool (a b : List Bool) (carry : Bool := false) : List Bool :=
 /-- Convert `List Bool` to a `Nat`. -/
 def listBoolToNat : List Bool → Nat
   | [] => 0
-  | h::t => 2 * listBoolToNat t + (if h then 1 else 0) -- could be h.toNat instead
+  | h::t => 2 * listBoolToNat t + h.toNat
 
 /-- Convert a `Nat` to a `List Bool`. -/
 def natToListBool (n : Nat) : List Bool :=

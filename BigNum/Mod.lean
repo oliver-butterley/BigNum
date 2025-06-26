@@ -69,8 +69,8 @@ lemma isZero_tail {tail : List Bool} (h : ∃ k, listBoolToNat (true :: tail) = 
 lemma isPowTwo_of_isPowTwo_tail {tail} (h : isPowerOfTwo tail) : isPowerOfTwo (false :: tail) := by
   simpa [isPowerOfTwo]
 
-theorem isPowerOfTwo_correct (bs : List Bool) :
-  isPowerOfTwo bs ↔ (0 <listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k) := by
+theorem isPowerOfTwo_iff (bs : List Bool) :
+  isPowerOfTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k) := by
   constructor
   -- Forward direction
   · intro h
@@ -79,9 +79,11 @@ theorem isPowerOfTwo_correct (bs : List Bool) :
     | cons head tail ih =>
       cases head with
       | true =>
+        -- Case: bs = true :: tail
         refine ⟨by simp, Nat.size (listBoolToNat tail), ?_⟩
         simp_all [listBoolToNat, isPowerOfTwo]
       | false =>
+        -- Case: bs = false :: tail
         obtain ⟨k, hk⟩ := (ih h).2
         refine ⟨?_, k + 1, ?_⟩
         · simp_all [isPowerOfTwo, listBoolToNat]
@@ -112,3 +114,44 @@ theorem isPowerOfTwo_correct (bs : List Bool) :
             simp_all  [hj, show 2 ^ (j + 1) = 2 * 2 ^ j by omega]
         apply isPowTwo_of_isPowTwo_tail
         simp_all
+
+@[simp]
+lemma removeTrailingZeros_of_empty : removeTrailingZeros [] = [] := by
+  simp [removeTrailingZeros, removeLeadingZeros]
+
+lemma removeLeadingZeros_of_head {bs : List Bool} :
+    removeLeadingZeros (bs ++ [true]) = (removeLeadingZeros bs) ++ [true] := by
+  induction bs using removeLeadingZeros.induct with
+    | case1 => tauto
+    | case2 t ih => simpa
+    | case3 t => simp [removeTrailingZeros, removeLeadingZeros]
+
+lemma removeLeadingZeros_of_head' {bs : List Bool} (h : removeLeadingZeros bs = []) :
+    removeLeadingZeros (bs ++ [false]) = [] := by
+  sorry
+
+lemma removeLeadingZeros_of_head'' {bs : List Bool} (h : ¬ removeLeadingZeros bs = []) :
+    removeLeadingZeros (bs ++ [false]) = (removeLeadingZeros bs) ++ [false] := by
+  sorry
+
+lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
+    listBoolToNat (removeTrailingZeros bs) = listBoolToNat bs := by
+  induction bs with
+    | nil => simp
+    | cons h t ih =>
+      simp [removeTrailingZeros, removeLeadingZeros]
+      by_cases hh : h
+      · simp [hh, removeLeadingZeros_of_head,  ← ih, removeTrailingZeros, removeLeadingZeros]
+      · by_cases ht : removeLeadingZeros t.reverse = []
+        ·
+          have : h = false := by exact eq_false_of_ne_true hh
+          have := removeLeadingZeros_of_head' ht
+          rw [eq_false_of_ne_true hh, this]
+          simp
+          rw [← ih]
+
+          simp [hh, removeLeadingZeros_of_head' ht,  ← ih, removeTrailingZeros, removeLeadingZeros]
+
+          sorry
+        ·
+          sorry

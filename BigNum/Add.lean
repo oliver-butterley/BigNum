@@ -80,7 +80,7 @@ lemma addListBool_of_empty_right_of_carry (bs : List Bool) :
 /-- BigNum addition on `List Bool` agress with `Nat` addition. -/
 theorem addListBool_listBoolToNat (a b : List Bool) (carry : Bool) :
     listBoolToNat (addListBool a b carry) = listBoolToNat a + listBoolToNat b +
-    (if carry then 1 else 0) := by
+    carry.toNat := by
   induction a, b, carry using addListBool.induct with
   | case1 =>
     simp [listBoolToNat, addListBool]
