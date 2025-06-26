@@ -4,6 +4,9 @@
 Implement basic arithmetic for arbitrarily large natural numbers ("bignats") represented as strings
 containing only characters "0" and "1".
 
+The implementation in this file uses only structural operations on List Bool, avoiding built-in Nat
+operations in the core logic.
+
 - We define natural numbers represented as bitstrings (e.g., "1011").
 - All operations are purely structural (not using built-in `+`, `-`, `*` in core logic).
 - Operations:
@@ -62,7 +65,7 @@ def addListBool (a b : List Bool) (carry : Bool := false) : List Bool :=
 /-- Convert `List Bool` to a `Nat`. -/
 def listBoolToNat : List Bool → Nat
   | [] => 0
-  | h::t => 2 * listBoolToNat t + (if h then 1 else 0)
+  | h::t => 2 * listBoolToNat t + (if h then 1 else 0) -- could be h.toNat instead
 
 /-- Convert a `Nat` to a `List Bool`. -/
 def natToListBool (n : Nat) : List Bool :=

@@ -9,7 +9,7 @@ containing only characters "0" and "1".
 - All operations are purely structural (not using built-in `+`, `-`, `*` in core logic).
 - Operations (`BigNum/Defs.lean`):
   - `add`: adds two bignat strings, (*complete with correctness proof*)
-  - `sub`: computes the difference between two bignat strings
+  - `sub`: computes the difference between two bignat strings (*in progress*)
   - `mul`: computes the product of two bignat strings (*complete with correctness proof*)
   - `modadd`: addition modulo n, i.e., computes $$a+b \mod n$$ (*to do*)
   - `modmul`: multiplication modulo n, , i.e., computes $$a*b \mod n$$ (*to do*)
