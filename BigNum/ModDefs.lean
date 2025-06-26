@@ -40,7 +40,7 @@ def modPowerOfTwo (a : List Bool) (n : Nat) : List Bool :=
     | h :: t, Nat.succ r => h :: takeFirstN t r
   takeFirstN a n
 
-/-- Multiply two numbers modulo 2^n -/
-def mulModPowerOfTwo (a b : List Bool) (n : Nat) : List Bool :=
-  let product := mulListBool a b
-  modPowerOfTwo product n
+-- /-- Multiply two numbers modulo 2^n -/
+-- def mulModPowerOfTwo (a b : List Bool) (n : Nat) : List Bool :=
+--   let product := mulListBool a b
+--   modPowerOfTwo product n
