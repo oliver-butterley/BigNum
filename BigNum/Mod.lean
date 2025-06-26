@@ -57,6 +57,20 @@ lemma listBoolToNat_of_isOne (bs : List Bool) : isOne bs ↔ listBoolToNat bs = 
         | cons t_head t_tail => simp_all [isOne, isZero]
       | false => simp [isOne] at h
 
+lemma isZero_tail {tail : List Bool} (h : ∃ k, listBoolToNat (true :: tail) = 2 ^ k) :
+    isZero tail := by
+  induction tail with
+  | nil => simp
+  | cons head tail ih =>
+    obtain ⟨k, hk⟩ := h
+    obtain hk' | hk' : k = 0 ∨ 0 < k := by omega
+    · simp_all
+    · have ho : Odd (2 ^ k) := by simp [← hk]
+      have he : Even (2 ^ k) := by exact (Nat.even_pow' <| Nat.ne_zero_of_lt hk').mpr (by norm_num)
+      -- Surely there is a lemma in mathlib instead of the next two lines?
+      simp [Odd, Even] at ho he
+      omega
+
 theorem isPowerOfTwo_correct (bs : List Bool) :
   isPowerOfTwo bs ↔ (listBoolToNat bs > 0 ∧ ∃ k, listBoolToNat bs = 2^k) := by
   constructor
@@ -76,78 +90,77 @@ theorem isPowerOfTwo_correct (bs : List Bool) :
         · simp [hk]
           ring
   -- Reverse direction
-  · intro h
-    sorry
-    -- induction bs with
-    -- | nil =>
-    --   simp [listBoolToNat] at h
-    --   cases' h with h1 h2
-    --   contradiction
-    -- | cons head tail ih =>
-    --   cases head with
-    --   | true =>
-    --     -- Case: bs = true :: tail
-    --     simp [listBoolToNat] at h
-    --     cases' h with h1 h2
-    --     cases' h2 with k hk
-    --     simp [isPowerOfTwo]
-    --     -- Need to show isZero tail
-    --     -- We have 2 * listBoolToNat tail + 1 = 2^k
-    --     -- This means listBoolToNat tail = (2^k - 1) / 2
-    --     -- Since 2^k is even for k > 0, we need k = 0
-    --     -- So listBoolToNat tail = 0, which means isZero tail
-    --     have h_even : k = 0 := by
-    --       by_contra h_ne
-    --       have k_pos : k > 0 := Nat.pos_of_ne_zero h_ne
-    --       have : 2^k ≥ 2 := Nat.pow_le_pow_of_le_right (by norm_num) k_pos
-    --       have : 2 * listBoolToNat tail + 1 ≥ 2 := by rw [← hk]; exact this
-    --       have : 2 * listBoolToNat tail ≥ 1 := Nat.le_sub_of_add_le this
-    --       have : listBoolToNat tail > 0 := by
-    --         cases' listBoolToNat tail with n
-    --         · simp at this
-    --         · simp
-    --       -- But then 2^k = 2 * listBoolToNat tail + 1 is odd
-    --       -- while 2^k for k > 0 is even, contradiction
-    --       rw [hk] at this
-    --       have : Odd (2^k) := by
-    --         rw [← hk]
-    --         simp [Odd, Nat.add_mod]
-    --       have : Even (2^k) := Nat.even_pow_of_pos k_pos
-    --       exact Nat.odd_iff_not_even.mp this this
-    --     rw [h_even] at hk
-    --     simp at hk
-    --     have : listBoolToNat tail = 0 := by linarith
-    --     exact isZero_implies_listBoolToNat_zero tail |>.mpr this
-    --   | false =>
-    --     -- Case: bs = false :: tail
-    --     simp [listBoolToNat] at h
-    --     cases' h with h1 h2
-    --     cases' h2 with k hk
-    --     simp [isPowerOfTwo]
-    --     apply ih
-    --     constructor
-    --     · -- Show listBoolToNat tail > 0
-    --       have : 2 * listBoolToNat tail = 2^k := hk
-    --       have : listBoolToNat tail = 2^k / 2 := by
-    --         rw [← this]
-    --         simp [Nat.mul_div_cancel]
-    --       cases k with
-    --       | zero =>
-    --         simp at this
-    --         rw [this] at hk
-    --         simp at hk
-    --         contradiction
-    --       | succ k' =>
-    --         rw [this]
-    --         simp [Nat.pow_succ, Nat.div_mul_cancel]
-    --         exact Nat.pow_pos (by norm_num) k'
-    --     · -- Show ∃ j, listBoolToNat tail = 2^j
-    --       cases k with
-    --       | zero =>
-    --         simp at hk
-    --         contradiction
-    --       | succ k' =>
-    --         use k'
-    --         have : 2 * listBoolToNat tail = 2^(k' + 1) := hk
-    --         have : 2 * listBoolToNat tail = 2 * 2^k' := by simp [Nat.pow_succ] at this; exact this
-    --         exact Nat.mul_left_cancel this
+  · intro ⟨h, hk⟩
+    induction bs with
+    | nil =>
+      simp [listBoolToNat] at h
+    | cons head tail ih =>
+      cases head with
+      | true =>
+        -- Case: bs = true :: tail
+        have ht : isZero tail := by
+
+          sorry
+        simp_all [isPowerOfTwo]
+
+
+        -- Need to show isZero tail
+        -- We have 2 * listBoolToNat tail + 1 = 2^k
+        -- This means listBoolToNat tail = (2^k - 1) / 2
+        -- Since 2^k is even for k > 0, we need k = 0
+        -- So listBoolToNat tail = 0, which means isZero tail
+        have h_even : k = 0 := by
+          by_contra h_ne
+          have k_pos : k > 0 := Nat.pos_of_ne_zero h_ne
+          have : 2^k ≥ 2 := Nat.pow_le_pow_of_le_right (by norm_num) k_pos
+          have : 2 * listBoolToNat tail + 1 ≥ 2 := by rw [← hk]; exact this
+          have : 2 * listBoolToNat tail ≥ 1 := Nat.le_sub_of_add_le this
+          have : listBoolToNat tail > 0 := by
+            cases' listBoolToNat tail with n
+            · simp at this
+            · simp
+          -- But then 2^k = 2 * listBoolToNat tail + 1 is odd
+          -- while 2^k for k > 0 is even, contradiction
+          rw [hk] at this
+          have : Odd (2^k) := by
+            rw [← hk]
+            simp [Odd, Nat.add_mod]
+          have : Even (2^k) := Nat.even_pow_of_pos k_pos
+          exact Nat.odd_iff_not_even.mp this this
+        rw [h_even] at hk
+        simp at hk
+        have : listBoolToNat tail = 0 := by linarith
+        exact isZero_implies_listBoolToNat_zero tail |>.mpr this
+      | false =>
+        -- Case: bs = false :: tail
+        simp [listBoolToNat] at h
+        cases' h with h1 h2
+        cases' h2 with k hk
+        simp [isPowerOfTwo]
+        apply ih
+        constructor
+        · -- Show listBoolToNat tail > 0
+          have : 2 * listBoolToNat tail = 2^k := hk
+          have : listBoolToNat tail = 2^k / 2 := by
+            rw [← this]
+            simp [Nat.mul_div_cancel]
+          cases k with
+          | zero =>
+            simp at this
+            rw [this] at hk
+            simp at hk
+            contradiction
+          | succ k' =>
+            rw [this]
+            simp [Nat.pow_succ, Nat.div_mul_cancel]
+            exact Nat.pow_pos (by norm_num) k'
+        · -- Show ∃ j, listBoolToNat tail = 2^j
+          cases k with
+          | zero =>
+            simp at hk
+            contradiction
+          | succ k' =>
+            use k'
+            have : 2 * listBoolToNat tail = 2^(k' + 1) := hk
+            have : 2 * listBoolToNat tail = 2 * 2^k' := by simp [Nat.pow_succ] at this; exact this
+            exact Nat.mul_left_cancel this
