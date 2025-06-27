@@ -6,14 +6,15 @@ import BigNum.Convert
 
 Main results:
 
-* `isPowTwo_iff`:
-    `isPowTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k)`
-* `modPowTwoListBool_listBoolToNat`:
+* Proof that the binary definition of a number with a power of two corresponds to a power of two
+    `isPowTwo_iff`: `isPowTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k)`
+* Proof that the bignum definition of mod to a power of two is correct (variant 1)
+  `modPowTwoListBool_listBoolToNat`:
     `listBoolToNat (modPowTwoListBool as bs) = (listBoolToNat as) % (listBoolToNat bs)`
-* `modPowTwo_correct`:
-    `strToNat (modPowTwo a b) = strToNat a % strToNat b`
-* `modPowTwo_correct'`:
-    `strToNat (modPowTwo (natToStr m) (natToStr (2 ^ n))) = m % (2 ^ n)`
+* Proof that the bignum definition of mod to a power of two is correct (variant 2)
+    `modPowTwo_correct`: `strToNat (modPowTwo a b) = strToNat a % strToNat b`
+* Proof that the bignum definition of mod to a power of two is correct (variant 3)
+    `modPowTwo_correct'`: `strToNat (modPowTwo (natToStr m) (natToStr (2 ^ n))) = m % (2 ^ n)`
 -/
 
 @[simp]

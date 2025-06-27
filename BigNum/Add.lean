@@ -9,7 +9,9 @@ Addition of BigNums corresponds to addition of the natural numbers.
 Main results:
 
 * `add_correct`: `strToNat (add a b) = strToNat a + strToNat b`;
-* `add_correct'`: `strToNat (add (natToStr m) (natToStr n)) = m + n`.
+* `add_correct'`: `strToNat (add (natToStr m) (natToStr n)) = m + n`;
+* `addListBool_listBoolToNat`:
+    `listBoolToNat (addListBool a b carry) = listBoolToNat a + listBoolToNat b `.
 -/
 
 /-! ## Addition of List Bool -/

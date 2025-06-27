@@ -13,9 +13,6 @@ operations in the core logic.
   - `add`: adds two bignat strings,
   - `sub`: computes the difference between two bignat strings
   - `mul`: computes the product of two bignat strings
-  - `modadd`: addition modulo n, i.e., computes a+b mod n
-  - `modmul`: multiplication modulo n, , i.e., computes a*b mod n
-  - `modexp`: exponentiation modulo n, i.e., computes a^b mod n
 - Utility functions:
   - `strToNat`: converts bignat string to nat
   - `natToStr`: converts nat to bignat string
@@ -28,6 +25,10 @@ operations in the core logic.
 - Canonical form of a bignat string:
   - No leading `0`s
   - Only the characters `1` or `0`
+- Not implemented (only modPowTwo and utility functions done):
+  - `modadd`: addition modulo n, i.e., computes a+b mod n
+  - `modmul`: multiplication modulo n, , i.e., computes a*b mod n
+  - `modexp`: exponentiation modulo n, i.e., computes a^b mod n
 -/
 
 /-! ## Define binary addition for list of booleans.
@@ -131,26 +132,6 @@ def subBitsWithBorrow (a b borrow : Bool) : Bool × Bool :=
   let borrowOut := (!a && (b || borrow)) || (b && borrow)
   (resultBit, borrowOut)
 
-/-- Subtract two binary numbers represented as lists of booleans (least significant bit first).
-Computes a - b. Returns the result and whether there was an underflow. -/
-def subListBool (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
-  match a, b with
-  | [], [] => ([], borrow)
-  | [], b::bs =>
-    -- This case is never relevant since we return [] when there is an overflow at the end.
-    let (diff, newBorrow) := subBitsWithBorrow false b borrow
-    let (rest, finalBorrow) := subListBool [] bs newBorrow
-    (diff :: rest, finalBorrow)
-  | a::as, [] =>
-    let (diff, newBorrow) := subBitsWithBorrow a false borrow
-    let (rest, finalBorrow) := subListBool as [] newBorrow
-    (diff :: rest, finalBorrow)
-  | a::as, b::bs =>
-    let (diff, newBorrow) := subBitsWithBorrow a b borrow
-    let (rest, finalBorrow) := subListBool as bs newBorrow
-    (diff :: rest, finalBorrow)
-
--- new version
 def subListBoolAux (a b : List Bool) (borrow : Bool) (acc : List Bool) : List Bool × Bool :=
   match a, b with
   | [], [] => (acc.reverse, borrow)
@@ -162,36 +143,27 @@ def subListBoolAux (a b : List Bool) (borrow : Bool) (acc : List Bool) : List Bo
     let (diff, newBorrow) := subBitsWithBorrow a b borrow
     subListBoolAux as bs newBorrow (diff :: acc)
 
--- new version
-def subListBoolX (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
+def subListBool (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :=
   subListBoolAux a b borrow []
 
 /-- Subtract two binary numbers, returning just the result or zero if negative. -/
 def subListBool' (a b : List Bool) : List Bool :=
   if (subListBool a b).2 then [] else (subListBool a b).1
 
-/-- Subtract two binary numbers, returning just the result or zero if negative. -/
-def subListBoolX' (a b : List Bool) : List Bool :=
-  if (subListBoolX a b).2 then [] else (subListBoolX a b).1
-
 /-! ## Define subtraction for binary numbers written as strings. -/
-
-/-- Subtraction of two binary numbers represented as strings. -/
-def sub (a b : String) : String :=
-  listBoolToStr <| subListBool' (strToListBool a) (strToListBool b)
 
 -- new version
 /-- Subtraction of two binary numbers represented as strings. -/
-def subX (a b : String) : String :=
-  listBoolToStr <| subListBoolX' (strToListBool a) (strToListBool b)
+def sub (a b : String) : String :=
+  listBoolToStr <| subListBool' (strToListBool a) (strToListBool b)
 
 -- Examples
 #eval sub "1001" "11"
 #eval sub "1001" "001"
 #eval sub "10" "11"
-#eval strToNat (subX (natToStr 15) (natToStr 3))
-#eval strToNat (subX (natToStr 7) (natToStr 0))
-#eval strToNat (subX (natToStr 7) (natToStr 8))
+#eval strToNat (sub (natToStr 15) (natToStr 3))
+#eval strToNat (sub (natToStr 7) (natToStr 0))
+#eval strToNat (sub (natToStr 7) (natToStr 8))
 
 /-! ## Define multiplication for list of booleans -/
 

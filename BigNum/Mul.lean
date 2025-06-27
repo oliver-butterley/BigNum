@@ -10,7 +10,8 @@ Multiplication of BigNums corresponds to multiplication of the natural numbers.
 Main results:
 
 * `mul_correct`: `strToNat (mul a b) = strToNat a * strToNat b`;
-* `mul_correct'`: `strToNat (mul (natToStr m) (natToStr n)) = m * n`.
+* `mul_correct'`: `strToNat (mul (natToStr m) (natToStr n)) = m * n`;
+* `mulListBool_correct`: `listBoolToNat (mulListBool a b) = listBoolToNat a * listBoolToNat b`.
 
 -/
 
