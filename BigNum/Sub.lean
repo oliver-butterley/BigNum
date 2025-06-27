@@ -33,7 +33,7 @@ lemma subBitsWithBorrow_correct (a b borrow : Bool) :
   a.toNat + (if borrowOut then 2 else 0) = b.toNat + borrow.toNat + diff.toNat := by
   simp only [subBitsWithBorrow]
   -- Mechanically check all 8 cases
-  cases a <;> cases b <;> cases borrow <;> simp [Bool.toNat]
+  cases a <;> cases b <;> cases borrow <;> simp
 
 lemma subListBoolAux_correct (a b : List Bool) (borrow : Bool) (acc : List Bool) :
     let (result, finalBorrow) := subListBoolAux a b borrow acc

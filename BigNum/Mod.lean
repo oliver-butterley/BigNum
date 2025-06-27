@@ -131,20 +131,44 @@ lemma isPowTwo_of_isPowTwo {tail} (h : isPowTwo (false :: tail)) : isPowTwo (tai
 lemma isZero_of_isPowTwo {tail} (h : isPowTwo (true :: tail)) : isZero tail := by
   exact h
 
-lemma simnple_yet_hard (A B : Nat) : 2 * (A % B) + 1 = (2 * A + 1) % (2 * B) := by
+-- Surprising that this isn't already available or easier to prove
+/-- If `Even a` and `Even b` then `a < b` implies that `a + 2 ≤ b`. -/
+lemma add_two_le_of_even_of_lt (a b : Nat) (ha : Even a) (hb : Even b) (h : a < b) : a + 2 ≤ b := by
+  obtain ⟨k, hk⟩ := Even.exists_two_nsmul a ha
+  obtain ⟨l, hl⟩ := Even.exists_two_nsmul b hb
+  have : k + 1 ≤ l := by
+    refine Order.add_one_le_iff.mpr ?_
+    simp_all
+  calc a + 2
+  _ = 2 * k + 2 * 1 := by simp [hk]
+  _ = 2 * (k + 1) := by ring
+  _ ≤ 2 * l := by simp [this]
+  _ = b := by simp [hl]
+
+-- To be tidied
+lemma div_even_add_one (A B : Nat) : 2 * A / (2 * B) = (2 * A + 1) / (2 * B) := by
+  have := Nat.div_add_mod' (2 * A) (2 * B)
+  by_cases hc : B = 0
+  · simp [hc]
+  · have := Nat.add_div (a := 2 * A) (b := 1) (c := 2 * B) (show 0 < 2 * B by omega)
+    have : 1 / (2 * B) = 0 := by
+      exact Nat.div_eq_of_lt (by omega)
+    have : 1 % (2 * B) = 1 := by
+      exact Nat.mod_eq_of_lt (by omega)
+    have : 2 * A % (2 * B) + 1 < 2 * B := by
+      refine add_two_le_of_even_of_lt (2 * A % (2 * B)) (2 * B) ?_ ?_ ?_
+      · exact Even.mod_even (even_two_mul A) (even_two_mul B)
+      · exact even_two_mul B
+      · exact Nat.mod_lt (2 * A) (by omega)
+    simp_all
+
+-- Surprising that this isn't easier to prove, requires the above two lemmas in current formulation.
+lemma simple_yet_seemingly_hard (A B : Nat) : 2 * (A % B) + 1 = (2 * A + 1) % (2 * B) := by
   have := Nat.mul_mod_mul_left 2 A B
-  rw [← this]
-  have : 1 = 1 % (2 * B) := by
-    have : 2 * B ≠ 1 := by
-      obtain hc | hc : B = 0 ∨ 1 ≤ B := by omega
-      · simp [hc]
-      · refine Ne.symm (Nat.ne_of_lt ?_)
-        linarith
-    exact Eq.symm ((fun {n} => Nat.one_mod_eq_one.mpr) this)
-  nth_rw 1 [this]
-  rw [Nat.add_mod]
-  -- Surely this is true!
-  sorry
+  have := Nat.div_add_mod (2 * A) (2 * B)
+  have h := Nat.div_add_mod (2 * A + 1) (2 * B)
+  rw [← div_even_add_one A B] at h
+  bound
 
 lemma modPowTwoListBool_listBoolToNat (as bs : List Bool) (h : isPowTwo bs) :
     listBoolToNat (modPowTwoListBool as bs) = (listBoolToNat as) % (listBoolToNat bs) := by
@@ -155,7 +179,7 @@ lemma modPowTwoListBool_listBoolToNat (as bs : List Bool) (h : isPowTwo bs) :
       specialize ih <| isPowTwo_of_isPowTwo h
       by_cases hc : ha
       · simp [hc, modPowTwoListBool, ih]
-        have := simnple_yet_hard (listBoolToNat ta) (listBoolToNat tb)
+        have := simple_yet_seemingly_hard (listBoolToNat ta) (listBoolToNat tb)
         exact this
       · simpa [hc, modPowTwoListBool, ih] using
           (Nat.mul_mod_mul_left 2 (listBoolToNat ta) (listBoolToNat tb)).symm
