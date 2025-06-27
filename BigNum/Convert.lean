@@ -110,6 +110,7 @@ lemma removeLeadingZeros_of_head'' {bs : List Bool} (h : ¬ removeLeadingZeros b
           simp_all [removeLeadingZeros]
         simp [removeLeadingZeros, ih this]
 
+@[simp]
 lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
     listBoolToNat (removeTrailingZeros bs) = listBoolToNat bs := by
   induction bs with

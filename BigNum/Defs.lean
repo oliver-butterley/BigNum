@@ -230,44 +230,57 @@ def mul (a b : String) : String :=
 #eval strToNat (mul (natToStr 7) (natToStr 4))
 
 
--- def modadd (a b m : String) : String :=
+/-! ## Helper functions -/
 
--- def modmul (a b m : String) : String :=
+/-- Check if a List Bool has no bits set. -/
+def isZero (bs : List Bool) : Prop := match bs with
+  | [] => True
+  | true :: _ => False
+  | false :: tail => isZero tail
 
--- def modpow (a e m : String) : String :=
+/-- Check if a List Bool has exactly one bit set. -/
+def isPowTwo (bs : List Bool) : Prop := match bs with
+  | [] => False
+  | true :: tail => isZero tail
+  | false :: tail => isPowTwo tail
 
--- DEPRECATED
+/-- Check if a number is one -/
+def isOne (bs : List Bool) : Prop :=
+  match bs with
+  | [true] => True
+  | true :: t => isZero t
+  | _ => False
 
--- /-- Every character is interpreted as `0` or `1`: both `0` and ` ` are interpreted as `0`, anything
--- else is interpreted as `1`. -/
--- def bitVal : Char → Nat
---   | '0' => 0
---   | ' ' => 0
---   | _   => 1
+/-! ## Modular Exponentiation for Power-of-2 Modulus
 
--- #eval bitVal '0'
--- #eval bitVal ' '
--- #eval bitVal '1'
--- #eval bitVal 'x'
+Implementation of a mod c when c = 2^n. In this case we can use simple bitwise operations.
+For c = 2^n, taking mod c is equivalent to keeping only the lowest n bits.
+-/
 
--- /-- Evaluate reversed bitstring to `Nat`. -/
--- def listCharToNat : List Char → Nat
---   | [] => 0
---   | h::t => 2 * listCharToNat t + bitVal h
+/-- Use a list `bs` as a counter to remove bits from `as`. -/
+def modPowTwoListBool (as counter : List Bool) : List Bool :=
+  match as, counter with
+  | [], _ => []
+  | as, [] => as
+  | h :: t, false :: tc => h :: modPowTwoListBool t tc -- remove one bit from the counter and repeat
+  | _, true :: _ => []
 
--- /-- Convert `Nat` to binary string - reversed. -/
--- def natToListChar (n : Nat) : List Char :=
---   if n = 0 then []
---   else (if n % 2 = 1 then '1' else '0') :: natToListChar (n / 2)
+/-! ## Define mod for binary numbers written as strings. -/
 
--- /-- Convert any string to a `Nat` by interpreting the characters as bit values.
--- - Zerosy values are `0` or ` `;
--- - Onesy values are `1` and any other character.
--- Most significant digit first as with standard written binary. -/
--- def strToNat' (s : String) : Nat := listCharToNat s.toList.reverse
+def modPowTwo (a b : String) : String :=
+  listBoolToStr <| removeTrailingZeros <| modPowTwoListBool (strToListBool a) (strToListBool b)
 
--- def natToStr' (n : Nat) : String := String.mk (natToListChar n).reverse
+/-- Check that the string represents a binary number which is a power of two. -/
+def isPowTwo' (a : String) : Prop := isPowTwo (strToListBool a)
 
--- #eval natToStr' 5
--- #eval natToStr' 0
--- #eval strToNat' <| natToStr' 12
+-- Examples
+#eval modPowTwo "1100" "100"
+#eval modPowTwo "001100" "100"
+#eval modPowTwo "110110" "100"
+#eval modPowTwo "110110" "0"
+#eval strToNat <| modPowTwo (natToStr 13) (natToStr 4)
+#eval strToNat <| modPowTwo (natToStr 13) (natToStr 1)
+#eval strToNat <| modPowTwo (natToStr 13) (natToStr 0)
+#eval 13 % 4
+#eval 13 % 1
+#eval 13 % 0

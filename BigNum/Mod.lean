@@ -1,11 +1,20 @@
 import Mathlib
-import BigNum.ModDefs
+import BigNum.Defs
 import BigNum.Convert
 
 /-! # Correctness of mod related definitions.
 
--/
+Main results:
 
+* `isPowTwo_iff`:
+    `isPowTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k)`
+* `modPowTwoListBool_listBoolToNat`:
+    `listBoolToNat (modPowTwoListBool as bs) = (listBoolToNat as) % (listBoolToNat bs)`
+* `modPowTwo_correct`:
+    `strToNat (modPowTwo a b) = strToNat a % strToNat b`
+* `modPowTwo_correct'`:
+    `strToNat (modPowTwo (natToStr m) (natToStr (2 ^ n))) = m % (2 ^ n)`
+-/
 
 @[simp]
 lemma isZero_of_empty : isZero [] := by
@@ -145,7 +154,7 @@ lemma add_two_le_of_even_of_lt (a b : Nat) (ha : Even a) (hb : Even b) (h : a < 
   _ ≤ 2 * l := by simp [this]
   _ = b := by simp [hl]
 
--- To be tidied
+/-- Unexpected effect of natural number division for even numbers. -/
 lemma div_even_add_one (A B : Nat) : 2 * A / (2 * B) = (2 * A + 1) / (2 * B) := by
   have := Nat.div_add_mod' (2 * A) (2 * B)
   by_cases hc : B = 0
@@ -188,3 +197,16 @@ lemma modPowTwoListBool_listBoolToNat (as bs : List Bool) (h : isPowTwo bs) :
       have : listBoolToNat tail = 0 := by exact (listBoolToNat_of_isZero tail).mp h
       simp [modPowTwoListBool, this]
       exact Eq.symm (Nat.mod_one (listBoolToNat bs))
+
+/-- BigNum modPowTwo coincides with `Nat` addition. -/
+theorem modPowTwo_correct (a b : String) (h : isPowTwo' b) :
+    strToNat (modPowTwo a b) = strToNat a % strToNat b := by
+  simpa [modPowTwo, strToNat] using
+    modPowTwoListBool_listBoolToNat (strToListBool a) (strToListBool b) (by exact h)
+
+/-- BigNum modPowTwo coincides with `Nat` addition. -/
+theorem modPowTwo_correct' (m n : Nat) :
+    strToNat (modPowTwo (natToStr m) (natToStr (2 ^ n))) = m % (2 ^ n) := by
+  have hn : isPowTwo' (natToStr (2 ^ n)) := by
+    simp [isPowTwo', natToStr, (isPowTwo_iff <| natToListBool (2 ^ n)).mpr]
+  simp [modPowTwo_correct (natToStr m) (natToStr (2 ^ n)) hn]
