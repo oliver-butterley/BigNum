@@ -178,10 +178,6 @@ lemma modPowTwoListBool_of_empty {as : List Bool} : modPowTwoListBool as [] = as
 lemma modPowTwoListBool_of_true {as bs} : modPowTwoListBool as (true :: bs) = [] := by
   by_cases hc : as = [] <;> simp [hc, modPowTwoListBool]
 
-
--- @[simp]
--- lemma modPowTwoListBool_of_false {as bs} : modPowTwoListBool as (false :: bs) = modPowTwoListBool as bs
-
 @[simp]
 lemma isPowTwo_of_isPowTwo {tail} (h : isPowTwo (false :: tail)) : isPowTwo (tail) := by
   simp_all [isPowTwo]
@@ -190,7 +186,7 @@ lemma isPowTwo_of_isPowTwo {tail} (h : isPowTwo (false :: tail)) : isPowTwo (tai
 lemma isZero_of_isPowTwo {tail} (h : isPowTwo (true :: tail)) : isZero tail := by
   exact h
 
-lemma aux (A B : Nat) : 2 * (A % B) + 1 = (2 * A + 1) % (2 * B) := by
+lemma simnple_yet_hard (A B : Nat) : 2 * (A % B) + 1 = (2 * A + 1) % (2 * B) := by
   have := Nat.mul_mod_mul_left 2 A B
   rw [← this]
   have : 1 = 1 % (2 * B) := by
@@ -214,7 +210,7 @@ lemma modPowTwoListBool_listBoolToNat (as bs : List Bool) (h : isPowTwo bs) :
       specialize ih <| isPowTwo_of_isPowTwo h
       by_cases hc : ha
       · simp [hc, modPowTwoListBool, ih]
-        have := aux (listBoolToNat ta) (listBoolToNat tb)
+        have := simnple_yet_hard (listBoolToNat ta) (listBoolToNat tb)
         exact this
       · simpa [hc, modPowTwoListBool, ih] using
           (Nat.mul_mod_mul_left 2 (listBoolToNat ta) (listBoolToNat tb)).symm
