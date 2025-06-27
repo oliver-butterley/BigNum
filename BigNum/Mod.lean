@@ -66,27 +66,27 @@ lemma isZero_tail {tail : List Bool} (h : ∃ k, listBoolToNat (true :: tail) = 
       simp [Odd, Even] at ho he
       omega
 
-lemma isPowTwo_of_isPowTwo_tail {tail} (h : isPowerOfTwo tail) : isPowerOfTwo (false :: tail) := by
-  simpa [isPowerOfTwo]
+lemma isPowTwo_of_isPowTwo_tail {tail} (h : isPowTwo tail) : isPowTwo (false :: tail) := by
+  simpa [isPowTwo]
 
-theorem isPowerOfTwo_iff (bs : List Bool) :
-  isPowerOfTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k) := by
+theorem isPowTwo_iff (bs : List Bool) :
+  isPowTwo bs ↔ (0 < listBoolToNat bs ∧ ∃ k, listBoolToNat bs = 2^k) := by
   constructor
   -- Forward direction
   · intro h
     induction bs with
-    | nil => simp [isPowerOfTwo] at h
+    | nil => simp [isPowTwo] at h
     | cons head tail ih =>
       cases head with
       | true =>
         -- Case: bs = true :: tail
         refine ⟨by simp, Nat.size (listBoolToNat tail), ?_⟩
-        simp_all [listBoolToNat, isPowerOfTwo]
+        simp_all [listBoolToNat, isPowTwo]
       | false =>
         -- Case: bs = false :: tail
         obtain ⟨k, hk⟩ := (ih h).2
         refine ⟨?_, k + 1, ?_⟩
-        · simp_all [isPowerOfTwo, listBoolToNat]
+        · simp_all [isPowTwo, listBoolToNat]
         · simp [hk]
           ring
   -- Reverse direction
@@ -99,7 +99,7 @@ theorem isPowerOfTwo_iff (bs : List Bool) :
       | true =>
         -- Case: bs = true :: tail
         have := isZero_tail hk
-        simp_all [isPowerOfTwo]
+        simp_all [isPowTwo]
       | false =>
         -- Case: bs = false :: tail
         have : 0 < listBoolToNat tail := by
@@ -169,3 +169,57 @@ lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
           rw [ht, List.reverse_nil, listBoolToNat_of_empty] at ih
           simp [eq_false_of_ne_true hh, removeLeadingZeros_of_head' ht, ← ih]
         · simpa [eq_false_of_ne_true hh, removeLeadingZeros_of_head'' ht]
+
+@[simp]
+lemma modPowTwoListBool_of_empty {as : List Bool} : modPowTwoListBool as [] = as := by
+  by_cases hc : as = [] <;> simp [hc, modPowTwoListBool]
+
+@[simp]
+lemma modPowTwoListBool_of_true {as bs} : modPowTwoListBool as (true :: bs) = [] := by
+  by_cases hc : as = [] <;> simp [hc, modPowTwoListBool]
+
+
+-- @[simp]
+-- lemma modPowTwoListBool_of_false {as bs} : modPowTwoListBool as (false :: bs) = modPowTwoListBool as bs
+
+@[simp]
+lemma isPowTwo_of_isPowTwo {tail} (h : isPowTwo (false :: tail)) : isPowTwo (tail) := by
+  simp_all [isPowTwo]
+
+@[simp]
+lemma isZero_of_isPowTwo {tail} (h : isPowTwo (true :: tail)) : isZero tail := by
+  exact h
+
+lemma aux (A B : Nat) : 2 * (A % B) + 1 = (2 * A + 1) % (2 * B) := by
+  have := Nat.mul_mod_mul_left 2 A B
+  rw [← this]
+  have : 1 = 1 % (2 * B) := by
+    have : 2 * B ≠ 1 := by
+      obtain hc | hc : B = 0 ∨ 1 ≤ B := by omega
+      · simp [hc]
+      · refine Ne.symm (Nat.ne_of_lt ?_)
+        linarith
+    exact Eq.symm ((fun {n} => Nat.one_mod_eq_one.mpr) this)
+  nth_rw 1 [this]
+  rw [Nat.add_mod]
+  -- Surely this is true!
+  sorry
+
+lemma modPowTwoListBool_listBoolToNat (as bs : List Bool) (h : isPowTwo bs) :
+    listBoolToNat (modPowTwoListBool as bs) = (listBoolToNat as) % (listBoolToNat bs) := by
+  induction as, bs using modPowTwoListBool.induct with
+    | case1 counter => simp [modPowTwoListBool]
+    | case2 as has => simp
+    | case3 ha ta tb ih =>
+      specialize ih <| isPowTwo_of_isPowTwo h
+      by_cases hc : ha
+      · simp [hc, modPowTwoListBool, ih]
+        have := aux (listBoolToNat ta) (listBoolToNat tb)
+        exact this
+      · simpa [hc, modPowTwoListBool, ih] using
+          (Nat.mul_mod_mul_left 2 (listBoolToNat ta) (listBoolToNat tb)).symm
+    | case4 bs tail ht =>
+      have := isZero_of_isPowTwo h
+      have : listBoolToNat tail = 0 := by exact (listBoolToNat_of_isZero tail).mp h
+      simp [modPowTwoListBool, this]
+      exact Eq.symm (Nat.mod_one (listBoolToNat bs))
