@@ -35,12 +35,8 @@ def isOne (bs : List Bool) : Prop :=
 def removeLeadingZeros (bs : List Bool) : List Bool :=
   match bs with
   | [] => []
-  | false :: tail => removeLeadingZeros tail
+  | false :: tail => removeLeadingZeros tail -- remove false and continue
   | true :: _ => bs  -- begins with true, don't remove anything
-
-/-- Remove trailing zeros. -/
-def removeTrailingZeros' (bs : List Bool) : List Bool :=
-  (bs.reverse.dropWhile (· = false)).reverse
 
 /-- Remove trailing zeros. -/
 def removeTrailingZeros (bs : List Bool) : List Bool :=
@@ -48,7 +44,7 @@ def removeTrailingZeros (bs : List Bool) : List Bool :=
 
 -- TO DO: modify this to use another `List Bool` for counting, not `remaining : Nat`
 /-- Take modulo 2^n by keeping only the first n bits (least significant) -/
-def modPowerOfTwo (a : List Bool) (n : Nat) : List Bool :=
+def modPowTwo (a : List Bool) (n : Nat) : List Bool :=
   let rec takeFirstN (bits : List Bool) (remaining : Nat) : List Bool :=
     match bits, remaining with
     | [], _ => []
