@@ -38,24 +38,6 @@ def removeLeadingZeros (bs : List Bool) : List Bool :=
   | false :: tail => removeLeadingZeros tail
   | true :: _ => bs  -- begins with true, don't remove anything
 
--- /-- Remove a single trailing false if it exists. -/
--- def removeTrailingZero (bs : List Bool) : List Bool :=
---   match bs.reverse with
---   | [] => []
---   | false :: tail => tail.reverse
---   | true :: _ => bs  -- ends with true, don't remove anything
-
--- /-- Remove a single trailing false if it exists. -/
--- def removeTrailingZeros (bs : List Bool) : List Bool :=
---   match bs.reverse with
---   | [] => []
---   | false :: tail => removeTrailingZeros tail.reverse
---   | true :: _ => bs  -- ends with true, don't remove anything
---   termination_by bs.reverse.length
---   decreasing_by
---     simp [List.length_reverse]
-    -- sorry
-
 /-- Remove trailing zeros. -/
 def removeTrailingZeros' (bs : List Bool) : List Bool :=
   (bs.reverse.dropWhile (· = false)).reverse

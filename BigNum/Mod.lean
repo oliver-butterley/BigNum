@@ -144,7 +144,17 @@ lemma removeLeadingZeros_of_head' {bs : List Bool} (h : removeLeadingZeros bs = 
 
 lemma removeLeadingZeros_of_head'' {bs : List Bool} (h : ¬ removeLeadingZeros bs = []) :
     removeLeadingZeros (bs ++ [false]) = (removeLeadingZeros bs) ++ [false] := by
-  sorry
+  induction bs with
+    | nil =>
+      simp [removeLeadingZeros] at h
+    | cons head tail ih =>
+      by_cases hc : head
+      · rw [hc] at h ⊢
+        simp [removeLeadingZeros]
+      · rw [eq_false_of_ne_true hc] at h ⊢
+        have : ¬removeLeadingZeros tail = [] := by
+          simp_all [removeLeadingZeros]
+        simp [removeLeadingZeros, ih this]
 
 lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
     listBoolToNat (removeTrailingZeros bs) = listBoolToNat bs := by
