@@ -189,7 +189,7 @@ def subX (a b : String) : String :=
 #eval sub "1001" "11"
 #eval sub "1001" "001"
 #eval sub "10" "11"
-#eval strToNat (subX (natToStr 7) (natToStr 3))
+#eval strToNat (subX (natToStr 15) (natToStr 3))
 #eval strToNat (subX (natToStr 7) (natToStr 0))
 #eval strToNat (subX (natToStr 7) (natToStr 8))
 

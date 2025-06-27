@@ -28,6 +28,58 @@ lemma subListBool_of_empty_of_empty : subListBool [] [] = ([], false) := by
   unfold subListBool
   exact rfl
 
+lemma subBitsWithBorrow_correct (a b borrow : Bool) :
+  let (diff, borrowOut) := subBitsWithBorrow a b borrow
+  a.toNat + (if borrowOut then 2 else 0) = b.toNat + borrow.toNat + diff.toNat := by
+  simp only [subBitsWithBorrow]
+  -- Mechanically check all 8 cases
+  cases a <;> cases b <;> cases borrow <;> simp [Bool.toNat]
+
+lemma subListBoolAux_correct (a b : List Bool) (borrow : Bool) (acc : List Bool) :
+    let (result, finalBorrow) := subListBoolAux a b borrow acc
+    listBoolToNat a + borrow.toNat + listBoolToNat (acc.reverse) * 2 ^ a.length =
+    listBoolToNat b + listBoolToNat result + (if finalBorrow then 2 ^ (max a.length b.length + acc.length) else 0) := by
+  sorry
+  -- induction a with
+  -- | nil =>
+  --   induction b with
+  --   | nil =>
+  --     -- Base case: both lists empty
+  --     simp only [subListBoolAux, listBoolToNat_nil, List.length_nil, max_zero_left,
+  --                 zero_add, mul_zero, add_zero, pow_zero, List.reverse_reverse]
+  --     cases borrow <;> simp [Bool.toNat]
+  --   | cons b bs =>
+  --     -- Case: a empty, b non-empty (always underflows)
+  --     simp only [subListBoolAux]
+  --     -- Result is [], finalBorrow is true
+  --     simp [listBoolToNat_nil, List.length_nil, zero_add]
+  --     -- This case needs careful handling of the underflow
+  --     sorry
+  -- | cons a as =>
+  --   induction b with
+  --   | nil =>
+  --     -- Case: a non-empty, b empty
+  --     let (diff, newBorrow) := subBitsWithBorrow a false borrow
+  --     -- Apply subBitsWithBorrow_correct
+  --     have bit_correct := subBitsWithBorrow_correct a false borrow
+  --     simp only [Bool.toNat_false, add_zero] at bit_correct
+  --     -- Use inductive hypothesis on the tail
+  --     sorry
+  --   | cons b bs =>
+  --     -- Main inductive case: both lists non-empty
+  --     let (diff, newBorrow) := subBitsWithBorrow a b borrow
+  --     -- Apply subBitsWithBorrow_correct
+  --     have bit_correct := subBitsWithBorrow_correct a b borrow
+  --     -- The result is diff :: (result of recursive call)
+  --     simp only [subListBoolAux]
+  --     -- Use inductive hypothesis
+  --     have ih_applied := (subListBoolAux_correct as bs newBorrow (diff :: acc))
+  --     -- Combine bit_correct with ih_applied using properties of listBoolToNat
+  --     -- Key insight: listBoolToNat (a::as) = 2 * listBoolToNat as + a.toNat
+  --     simp only [listBoolToNat_cons, List.length_cons] at ih_applied ⊢
+  --     -- Algebraic manipulation to combine the equations
+  --     sorry
+
 /-- BigNum subtraction on `List Bool` agress with `Nat` subtraction. -/
 theorem subListBool_no_underflow (a b : List Bool) (borrow : Bool)
     (h : listBoolToNat a ≥ listBoolToNat b + (if borrow then 1 else 0)) :
