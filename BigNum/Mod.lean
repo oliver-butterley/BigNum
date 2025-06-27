@@ -116,61 +116,6 @@ theorem isPowTwo_iff (bs : List Bool) :
         simp_all
 
 @[simp]
-lemma removeTrailingZeros_of_empty : removeTrailingZeros [] = [] := by
-  simp [removeTrailingZeros, removeLeadingZeros]
-
-@[simp]
-lemma removeLeadingZeros_of_false : removeLeadingZeros [false] = [] := by
-  simp [removeLeadingZeros]
-
-lemma removeLeadingZeros_of_head_true {bs : List Bool} :
-    removeLeadingZeros (bs ++ [true]) = (removeLeadingZeros bs) ++ [true] := by
-  induction bs using removeLeadingZeros.induct with
-    | case1 => tauto
-    | case2 t ih => simpa
-    | case3 t => simp [removeTrailingZeros, removeLeadingZeros]
-
-lemma removeLeadingZeros_of_head' {bs : List Bool} (h : removeLeadingZeros bs = []) :
-    removeLeadingZeros (bs ++ [false]) = [] := by
-  induction bs with
-    | nil => simp
-    | cons head tail ih =>
-      have hc : head = false := by
-        by_contra! hc
-        simp [hc, removeLeadingZeros] at h
-      replace h : removeLeadingZeros tail = [] := by
-        simp_all [hc, removeLeadingZeros]
-      simp [hc, removeLeadingZeros, ih h]
-
-lemma removeLeadingZeros_of_head'' {bs : List Bool} (h : ¬ removeLeadingZeros bs = []) :
-    removeLeadingZeros (bs ++ [false]) = (removeLeadingZeros bs) ++ [false] := by
-  induction bs with
-    | nil =>
-      simp [removeLeadingZeros] at h
-    | cons head tail ih =>
-      by_cases hc : head
-      · rw [hc] at h ⊢
-        simp [removeLeadingZeros]
-      · rw [eq_false_of_ne_true hc] at h ⊢
-        have : ¬removeLeadingZeros tail = [] := by
-          simp_all [removeLeadingZeros]
-        simp [removeLeadingZeros, ih this]
-
-lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
-    listBoolToNat (removeTrailingZeros bs) = listBoolToNat bs := by
-  induction bs with
-    | nil => simp
-    | cons h t ih =>
-      simp [removeTrailingZeros, removeLeadingZeros]
-      by_cases hh : h
-      · simp [hh, removeLeadingZeros_of_head_true,  ← ih, removeTrailingZeros, removeLeadingZeros]
-      · by_cases ht : removeLeadingZeros t.reverse = []
-        · unfold removeTrailingZeros at ih
-          rw [ht, List.reverse_nil, listBoolToNat_of_empty] at ih
-          simp [eq_false_of_ne_true hh, removeLeadingZeros_of_head' ht, ← ih]
-        · simpa [eq_false_of_ne_true hh, removeLeadingZeros_of_head'' ht]
-
-@[simp]
 lemma modPowTwoListBool_of_empty {as : List Bool} : modPowTwoListBool as [] = as := by
   by_cases hc : as = [] <;> simp [hc, modPowTwoListBool]
 

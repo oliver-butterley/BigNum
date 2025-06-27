@@ -31,17 +31,6 @@ def isOne (bs : List Bool) : Prop :=
   | true :: t => isZero t
   | _ => False
 
-/-- Remove leading falses. -/
-def removeLeadingZeros (bs : List Bool) : List Bool :=
-  match bs with
-  | [] => []
-  | false :: tail => removeLeadingZeros tail -- remove false and continue
-  | true :: _ => bs  -- begins with true, don't remove anything
-
-/-- Remove trailing zeros. -/
-def removeTrailingZeros (bs : List Bool) : List Bool :=
-  (removeLeadingZeros bs.reverse).reverse
-
 /-- Use a list `bs` as a counter to remove bits from `as`. -/
 def modPowTwoListBool (as counter : List Bool) : List Bool :=
   match as, counter with
@@ -63,8 +52,3 @@ def modPowTwo (a b : String) : String :=
 #eval 13 % 4
 #eval 13 % 1
 #eval 13 % 0
-
--- /-- Multiply two numbers modulo 2^n -/
--- def mulModPowerOfTwo (a b : List Bool) (n : Nat) : List Bool :=
---   let product := mulListBool a b
---   modPowerOfTwo product n

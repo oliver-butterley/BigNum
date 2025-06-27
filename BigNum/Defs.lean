@@ -101,6 +101,19 @@ def strToNat (s : String) := listBoolToNat (strToListBool s)
 
 def natToStr (n : Nat) : String := listBoolToStr (natToListBool n)
 
+/-! ## Clean by removing leading zeros of `List Bool`. -/
+
+/-- Remove leading falses. -/
+def removeLeadingZeros (bs : List Bool) : List Bool :=
+  match bs with
+  | [] => []
+  | false :: tail => removeLeadingZeros tail -- remove false and continue
+  | true :: _ => bs  -- begins with true, don't remove anything
+
+/-- Remove trailing zeros. -/
+def removeTrailingZeros (bs : List Bool) : List Bool :=
+  (removeLeadingZeros bs.reverse).reverse
+
 /-! ## Define addition for binary numbers written as strings. -/
 
 /-- Addition of two binary numbers represented as strings. -/
@@ -141,28 +154,19 @@ def subListBool (a b : List Bool) (borrow : Bool := false) : List Bool × Bool :
 def subListBool' (a b : List Bool) : List Bool :=
   if (subListBool a b).2 then [] else (subListBool a b).1
 
--- /-- Helper function to remove leading zeros from a binary number. -/
--- def removeLeadingZeros (bits : List Bool) : List Bool :=
---   match bits.reverse with
---   | [] => []
---   | true :: rest => (true :: rest).reverse
---   | false :: rest => removeLeadingZeros rest.reverse
-
--- /-- Subtract two binary numbers and remove leading zeros. -/
--- def subListBoolClean (a b : List Bool) : List Bool :=
---   removeLeadingZeros (subListBoolSimple a b)
-
 /-! ## Define subtraction for binary numbers written as strings. -/
 
 /-- Subtraction of two binary numbers represented as strings. -/
 def sub (a b : String) : String :=
   listBoolToStr <| subListBool' (strToListBool a) (strToListBool b)
 
--- Example
+-- Examples
 #eval sub "1001" "11"
 #eval sub "1001" "001"
 #eval sub "10" "11"
 #eval strToNat (sub (natToStr 7) (natToStr 3))
+#eval strToNat (sub (natToStr 7) (natToStr 0))
+#eval strToNat (sub (natToStr 7) (natToStr 8))
 
 /-! ## Define multiplication for list of booleans -/
 
