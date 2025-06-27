@@ -62,7 +62,7 @@ lemma isZero_tail {tail : List Bool} (h : ∃ k, listBoolToNat (true :: tail) = 
     · simp_all
     · have ho : Odd (2 ^ k) := by simp [← hk]
       have he : Even (2 ^ k) := by exact (Nat.even_pow' <| Nat.ne_zero_of_lt hk').mpr (by norm_num)
-      -- Surely there is a lemma in mathlib instead of the next two lines?
+      -- Surely there is a lemma `Odd m → Even m → False` instead of the next two lines?
       simp [Odd, Even] at ho he
       omega
 
@@ -119,7 +119,11 @@ theorem isPowerOfTwo_iff (bs : List Bool) :
 lemma removeTrailingZeros_of_empty : removeTrailingZeros [] = [] := by
   simp [removeTrailingZeros, removeLeadingZeros]
 
-lemma removeLeadingZeros_of_head {bs : List Bool} :
+@[simp]
+lemma removeLeadingZeros_of_false : removeLeadingZeros [false] = [] := by
+  simp [removeLeadingZeros]
+
+lemma removeLeadingZeros_of_head_true {bs : List Bool} :
     removeLeadingZeros (bs ++ [true]) = (removeLeadingZeros bs) ++ [true] := by
   induction bs using removeLeadingZeros.induct with
     | case1 => tauto
@@ -128,7 +132,15 @@ lemma removeLeadingZeros_of_head {bs : List Bool} :
 
 lemma removeLeadingZeros_of_head' {bs : List Bool} (h : removeLeadingZeros bs = []) :
     removeLeadingZeros (bs ++ [false]) = [] := by
-  sorry
+  induction bs with
+    | nil => simp
+    | cons head tail ih =>
+      have hc : head = false := by
+        by_contra! hc
+        simp [hc, removeLeadingZeros] at h
+      replace h : removeLeadingZeros tail = [] := by
+        simp_all [hc, removeLeadingZeros]
+      simp [hc, removeLeadingZeros, ih h]
 
 lemma removeLeadingZeros_of_head'' {bs : List Bool} (h : ¬ removeLeadingZeros bs = []) :
     removeLeadingZeros (bs ++ [false]) = (removeLeadingZeros bs) ++ [false] := by
@@ -141,17 +153,9 @@ lemma removeTrailingZeros_listBoolToNat (bs : List Bool) :
     | cons h t ih =>
       simp [removeTrailingZeros, removeLeadingZeros]
       by_cases hh : h
-      · simp [hh, removeLeadingZeros_of_head,  ← ih, removeTrailingZeros, removeLeadingZeros]
+      · simp [hh, removeLeadingZeros_of_head_true,  ← ih, removeTrailingZeros, removeLeadingZeros]
       · by_cases ht : removeLeadingZeros t.reverse = []
-        ·
-          have : h = false := by exact eq_false_of_ne_true hh
-          have := removeLeadingZeros_of_head' ht
-          rw [eq_false_of_ne_true hh, this]
-          simp
-          rw [← ih]
-
-          simp [hh, removeLeadingZeros_of_head' ht,  ← ih, removeTrailingZeros, removeLeadingZeros]
-
-          sorry
-        ·
-          sorry
+        · unfold removeTrailingZeros at ih
+          rw [ht, List.reverse_nil, listBoolToNat_of_empty] at ih
+          simp [eq_false_of_ne_true hh, removeLeadingZeros_of_head' ht, ← ih]
+        · simpa [eq_false_of_ne_true hh, removeLeadingZeros_of_head'' ht]

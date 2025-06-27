@@ -54,11 +54,11 @@ def removeLeadingZeros (bs : List Bool) : List Bool :=
 --   termination_by bs.reverse.length
 --   decreasing_by
 --     simp [List.length_reverse]
---     sorry
+    -- sorry
 
--- /-- Remove trailing zeros. -/
--- def removeTrailingZeros' (bs : List Bool) : List Bool :=
---   (bs.reverse.dropWhile (· = false)).reverse
+/-- Remove trailing zeros. -/
+def removeTrailingZeros' (bs : List Bool) : List Bool :=
+  (bs.reverse.dropWhile (· = false)).reverse
 
 /-- Remove trailing zeros. -/
 def removeTrailingZeros (bs : List Bool) : List Bool :=
